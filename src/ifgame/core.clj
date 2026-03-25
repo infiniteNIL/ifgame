@@ -1,5 +1,6 @@
 (ns ifgame.core
   (:require [ifgame.room :as room]
+            [ifgame.parser :as parser]
             [ifgame.player :as player]
             [ifgame.game :as game])
   (:gen-class))
