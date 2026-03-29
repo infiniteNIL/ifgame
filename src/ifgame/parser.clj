@@ -5,7 +5,7 @@
   (insta/parser
     "<S> = COMMAND
      <COMMAND> = verb (<ARTICLE?> direct_object (preposition <ARTICLE?> indirect_object)?)?
-     verb = DIRECTION | #'(go|get|take|use|open|look|l|pick up|\\w+)'
+     verb = DIRECTION | #'(exit|x|quit|q|go|get|take|use|open|look|l|pick up|\\w+)'
      direct_object = noun | adjective noun
      indirect_object = noun | adjective noun
      preposition = #'(on|with|to)'
@@ -15,6 +15,5 @@
      ARTICLE = 'a' | 'an' | 'the'"
     :auto-whitespace :standard))
 
-;; => [:sentence [:noun_phrase [:article "the"] [:noun "cat"]] [:verb_phrase [:verb "saw"] [:noun_phrase [:article "a"] [:noun "dog"]]]]
 (defn parse [str]
   (if-parser str))
