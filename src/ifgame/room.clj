@@ -1,19 +1,19 @@
 (ns ifgame.room
   (:require [clojure.string :as str]))
 
-(defn- exits-description [location]
-  (let [exits (keys (:exits location))
-        exit-count (count exits)]
-    (case exit-count
-      0 "There are no exits."
-      1 (str "The only exit is to the " (first exits) ".")
-      2 (str "There are exits to the " (first exits) " and " (second exits) ".")
-      (let [last-exit (last exits)
-            exits-str (str/join ", " (butlast exits))]
-        (str "There are exits to the " exits-str " and " last-exit ".")))))
+#_(defn- exits-description [location]
+    (let [exits (keys (:exits location))
+          exit-count (count exits)]
+      (case exit-count
+        0 "There are no exits."
+        1 (str "The only exit is to the " (first exits) ".")
+        2 (str "There are exits to the " (first exits) " and " (second exits) ".")
+        (let [last-exit (last exits)
+              exits-str (str/join ", " (butlast exits))]
+          (str "There are exits to the " exits-str " and " last-exit ".")))))
 
 (defn full-description [location]
-  (str (:name @location) \newline (:desc @location) " " (exits-description @location)))
+  (str (:name @location) \newline (:desc @location)))
 
 (defn short-description [location]
   (:name @location))
