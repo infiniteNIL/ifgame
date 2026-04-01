@@ -21,6 +21,11 @@
 (defn first-visit? [location]
   (= 1 (:visit-count @location 0)))
 
+(defn description [location]
+  (if (first-visit? location)
+    (full-description location)
+    (short-description location)))
+
 (defn visit [location]
   (let [count (:visit-count @location 0)]
     (alter-var-root location assoc :visit-count (inc count))))

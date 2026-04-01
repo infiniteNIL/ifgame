@@ -25,10 +25,7 @@
     (when (not (game/over? @game/state))
       (let [current-loc (player/location game/state)]
         (when (not= prev-loc current-loc)
-          ;;TODO: Put describe logic in room namespace
-          (if (room/first-visit? current-loc)
-            (println (room/full-description current-loc))
-            (println (room/short-description current-loc))))
+          (println (room/description current-loc)))
         (let [cmd (get-command)]
           (cmd/process-cmd (parser/parse cmd) game/state)
           (recur current-loc))))))
