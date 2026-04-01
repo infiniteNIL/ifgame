@@ -14,15 +14,21 @@
   (read-line))
 
 (defn print-title [game-state]
-  (println (game/title game-state))
-  (println "by" (:author game-state)))
+  (println (game/title @game-state))
+  (println "by" (:author @game-state)))
 
 (defn -main []
-  (print-title @game/state)
+  (game/init)
+  (print-title game/state)
   (println)
-  (loop [prev-location nil]
+  (loop [prev-loc nil]
     (when (not (game/over? @game/state))
-      (room/describe-location (player/location game/state))
-      (let [cmd (get-command)]
-        (cmd/process-cmd (parser/parse cmd) game/state)
-        (recur (player/location game/state))))))
+      (let [current-loc (player/location game/state)]
+        (when (not= prev-loc current-loc)
+          ;;TODO: Put describe logic in room namespace
+          (if (room/first-visit? current-loc)
+            (println (room/full-description current-loc))
+            (println (room/short-description current-loc))))
+        (let [cmd (get-command)]
+          (cmd/process-cmd (parser/parse cmd) game/state)
+          (recur current-loc))))))

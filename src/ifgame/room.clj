@@ -1,27 +1,26 @@
-(ns ifgame.room)
+(ns ifgame.room
+  (:require [clojure.string :as str]))
 
-(defn- describe-exits [location]
+(defn- exits-description [location]
   (let [exits (keys (:exits location))
         exit-count (count exits)]
-    (cond
-      (zero? exit-count)
-      (print "There are no exits")
-
-      (= exit-count 1)
-      (print "The only exit is to the" (first exits))
-
-      (= exit-count 2)
-      (print "There are exits to the" (first exits) "and" (second exits))
-
-      :else
+    (case exit-count
+      0 "There are no exits."
+      1 (str "The only exit is to the " (first exits) ".")
+      2 (str "There are exits to the " (first exits) " and " (second exits) ".")
       (let [last-exit (last exits)
-            exits-str (clojure.string/join ", " (butlast exits))]
-        (print "There are exits to the" exits-str)
-        (print ", and" last-exit))))
-  (println "."))
+            exits-str (str/join ", " (butlast exits))]
+        (str "There are exits to the " exits-str " and " last-exit ".")))))
 
-(defn describe-location [location]
-  (println (:name @location))
-  (print (:desc @location))
-  (print " ")
-  (describe-exits @location))
+(defn full-description [location]
+  (str (:name @location) \newline (:desc @location) " " (exits-description @location)))
+
+(defn short-description [location]
+  (:name @location))
+
+(defn first-visit? [location]
+  (= 1 (:visit-count @location 0)))
+
+(defn visit [location]
+  (let [count (:visit-count @location 0)]
+    (alter-var-root location assoc :visit-count (inc count))))

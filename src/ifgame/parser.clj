@@ -15,5 +15,13 @@
      ARTICLE = 'a' | 'an' | 'the'"
     :auto-whitespace :standard))
 
+(defn- to-map
+  "Take the AST returned by Instaparse and create a map"
+  [ast]
+  (into {} (map (fn [[k v]]
+                  [k (if (and (vector? v) (keyword? (first v)))
+                       (to-map [v])
+                       v)])
+                ast)))
 (defn parse [str]
-  (if-parser str))
+  (to-map (if-parser str)))
