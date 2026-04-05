@@ -25,7 +25,7 @@
     (when (not (game/over? @game/state))
       (let [current-loc (game/location game/state)]
         (when (not= prev-loc current-loc)
-          (println (room/description current-loc)))
+          (println (room/describe current-loc (if (room/first-visit? current-loc) :full :short))))
         (let [cmd (get-command)]
           (cmd/process-cmd (parser/parse cmd) game/state)
           (game/update-state game/state)

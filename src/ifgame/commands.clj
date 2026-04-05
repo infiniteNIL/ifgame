@@ -47,22 +47,17 @@
   (let [verb (:verb ast)]
     ;(println ast)
     (cond
-      (look-command? verb)
-      (println (room/full-description (game/location game-state)))
+      (look-command? verb)       (println (room/describe (game/location game-state) :full))
 
-      (quit-command? verb)
-      (when (verify-quit)
-        (swap! game-state game/set-quit))
+      (quit-command? verb)       (when (verify-quit)
+                                   (swap! game-state game/set-quit))
 
-      (direction? verb)
-      (travel (normalize-direction verb) game-state)
+      (direction? verb)          (travel (normalize-direction verb) game-state)
 
-      (or (= verb "go") (= verb "travel"))
-      (let [direction (get-in ast [:direct_object :noun])]
-        (travel (normalize-direction direction) game-state))
+      (or (= verb "go")
+          (= verb "travel"))     (let [direction (get-in ast [:direct_object :noun])]
+                                   (travel (normalize-direction direction) game-state))
 
-      (empty? verb)
-      (println "Excuse me?")
+      (empty? verb)              (println "Excuse me?")
 
-      :else
-      (println "What? I don't know what" (str \" verb \") "means."))))
+      :else                      (println "What? I don't know what" (str \" verb \") "means."))))

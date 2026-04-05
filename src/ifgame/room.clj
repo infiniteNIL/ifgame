@@ -1,4 +1,5 @@
-(ns ifgame.room)
+(ns ifgame.room
+  (:require [ifgame.object :as object]))
 
 (defrecord Room [name description
                  north south east west up down
@@ -25,10 +26,28 @@
 (defn first-visit? [location]
   (= 1 (:visit-count @location 0)))
 
-(defn description [location]
-  (if (first-visit? location)
-    (full-description location)
-    (short-description location)))
+(defn describe-objects [location]
+  (let [objects (:objects @location)]
+    (when objects
+      (str (reduce (fn [description obj]
+                     (let [desc (object/describe @obj :short)]
+                       (cond
+                         (nil? desc)           description
+                         (empty? description)  desc
+                         :else                 (str description \newline desc))))
+                   ""
+                   (:objects @location))))))
+
+(defn describe
+  "Describe a room and it's contents. Verbosity is :full for the full description, otherwise a short description is
+  returned."
+  [location verbosity]
+  (let [room-desc (if (= verbosity :full)
+                    (full-description location)
+                    (short-description location))]
+    (if (:objects @location)
+      (str room-desc \newline (describe-objects location))
+      room-desc)))
 
 (defn visit [location]
   (let [count (:visit-count @location 0)]

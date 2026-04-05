@@ -1,5 +1,5 @@
 (ns ifgame.rooms
-  (:require [ifgame.room :as room]))
+  (:require [ifgame.objects :as objects]))
 
 #_(declare north-room)
 
@@ -31,15 +31,21 @@
              :description "Through the dense foliage, you glimpse a building to the west. A track heads to the northeast."
              :west #'before-cottage
              :northeast #'clearing
-             :has #{:light}})
+             :has #{:light}
+             :objects [#'objects/bird]})
 
 (def clearing {:name "A forest clearing"
                :description "A tall sycamore stands in the middle of this clearing. The path winds southwest through the trees."
                :southwest #'forest
                :up #'top-of-tree
-               :has #{:light}})
+               :has #{:light}
+               :objects [#'objects/nest #'objects/tree]})
 
 (def top-of-tree {:name "At the top of the tree"
                   :description "You cling precariously to the trunk."
                   :down #'clearing
-                  :has #{:light}})
+                  :has #{:light}
+                  :objects [#'objects/branch]})
+
+#_(def test-room (room/map->Room {:name "Test Room"
+                                  :description "This is a test room"}))
