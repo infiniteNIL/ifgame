@@ -2,10 +2,13 @@
   (:require [ifgame.commands :as cmd]
             [ifgame.room :as room]
             [ifgame.parser :as parser]
-            [ifgame.player :as player]
             [ifgame.game :as game])
   (:gen-class))
 
+(defn print-title [game-state]
+  (println (game/title @game-state))
+  (println (game/headline @game-state))
+  (println "by" (:author @game-state)))
 
 (defn get-command []
   (println)
@@ -13,19 +16,17 @@
   (flush)
   (read-line))
 
-(defn print-title [game-state]
-  (println (game/title @game-state))
-  (println "by" (:author @game-state)))
-
 (defn -main []
   (game/init)
   (print-title game/state)
   (println)
   (loop [prev-loc nil]
+    ;(println game/state)
     (when (not (game/over? @game/state))
-      (let [current-loc (player/location game/state)]
+      (let [current-loc (game/location game/state)]
         (when (not= prev-loc current-loc)
           (println (room/description current-loc)))
         (let [cmd (get-command)]
           (cmd/process-cmd (parser/parse cmd) game/state)
+          (game/update-state game/state)
           (recur current-loc))))))

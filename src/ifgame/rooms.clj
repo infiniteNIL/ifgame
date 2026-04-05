@@ -1,16 +1,45 @@
-(ns ifgame.rooms)
+(ns ifgame.rooms
+  (:require [ifgame.room :as room]))
 
-(declare north-room)
+#_(declare north-room)
 
-(def start-room {:name "Starting Room"
-                 :desc "You are in the starting room. A hallway leads north."
-                 :exits {"north" #'north-room}})
+#_(def start-room {:name "Starting Room"
+                   :description "You are in the starting room. A hallway leads north."
+                   :north #'north-room})
 
-(def north-room {:name "North Room"
-                 :desc "Your are in the north room. A hallway leads south."
-                 :exits {"south" #'start-room}})
+#_(def north-room {:name "North Room"
+                   :description "Your are in the north room. A hallway leads south."
+                   :south #'start-room})
 
+#_(def east-room {:name "East Room"
+                  :description "This is the east room. A hallway leads west."
+                  :west #'start-room})
 
-(def east-room {:name "East Room"
-                :desc "This is the east room. A hallway leads west."
-                :exits {"west", #'start-room}})
+(def darkness {:name "Darkness"
+               :description "It is pitch black, and you can't see a thing."})
+
+(declare clearing top-of-tree forest)
+
+(def before-cottage {:name "In front of a cottage"
+                     :description "You stand outside a cottage. The forest stretches east."
+                     :east #'forest
+                     :has #{:light}})
+
+(def starting-location before-cottage)
+
+(def forest {:name "Deep in the forest"
+             :description "Through the dense foliage, you glimpse a building to the west. A track heads to the northeast."
+             :west #'before-cottage
+             :northeast #'clearing
+             :has #{:light}})
+
+(def clearing {:name "A forest clearing"
+               :description "A tall sycamore stands in the middle of this clearing. The path winds southwest through the trees."
+               :southwest #'forest
+               :up #'top-of-tree
+               :has #{:light}})
+
+(def top-of-tree {:name "At the top of the tree"
+                  :description "You cling precariously to the trunk."
+                  :down #'clearing
+                  :has #{:light}})

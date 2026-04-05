@@ -1,6 +1,5 @@
 (ns ifgame.commands
   (:require [ifgame.game :as game]
-            [ifgame.player :as player]
             [ifgame.room :as room]))
 
 (defn quit-command? [verb]
@@ -24,12 +23,12 @@
   (or (= verb "l") (= verb "look")))
 
 (defn travel [direction game-state]
-  (let [destination (get-in @(player/location game-state) [:exits direction])]
+  (let [destination (get @(game/location game-state) direction)]
     (if (nil? destination)
       (println "You can't go that way.")
       (do
         (room/visit destination)
-        (swap! game-state player/set-location destination)))))
+        (game/set-location game-state destination)))))
 
 (defn normalize-direction [direction]
   (let [dirs {"n" "north"
@@ -42,14 +41,14 @@
               "nw" "northwest"
               "se" "southeast"
               "sw" "southwest"}]
-    (dirs direction direction)))
+    (keyword (dirs direction direction))))
 
 (defn process-cmd [ast game-state]
   (let [verb (:verb ast)]
     ;(println ast)
     (cond
       (look-command? verb)
-      (println (room/full-description (player/location game-state)))
+      (println (room/full-description (game/location game-state)))
 
       (quit-command? verb)
       (when (verify-quit)
@@ -61,6 +60,9 @@
       (or (= verb "go") (= verb "travel"))
       (let [direction (get-in ast [:direct_object :noun])]
         (travel (normalize-direction direction) game-state))
+
+      (empty? verb)
+      (println "Excuse me?")
 
       :else
       (println "What? I don't know what" (str \" verb \") "means."))))
