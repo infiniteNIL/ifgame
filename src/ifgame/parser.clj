@@ -83,18 +83,18 @@
     "ne" "northeast" "nw" "northwest" "se" "southeast" "sw" "southwest"})
 
 (defn- build-vocab [game-state]
-  ;; TODO: Add player's inventory eventually
   (let [location (game/location game-state)
         object-keys (room/objects location)
+        inv-names (mapcat object/get-names (game/inventory game-state))
         names (mapcat object/get-names object-keys)
         adjs (mapcat object/get-adjectives object-keys)]
     (-> {}
-        (into {:nouns (set (concat (directions) names))})
+        (into {:nouns (set (concat (directions) names inv-names))})
         (into {:adjectives (set adjs)}))))
 
 (defn parse [str game-state]
   (let [vocab (build-vocab game-state)]
-    ;(println "vocab:" vocab)
+    (println "vocab:" vocab)
     (parse-command str vocab)))
 
 ;; Example of usage

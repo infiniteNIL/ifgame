@@ -43,24 +43,25 @@
     (travel (normalize-direction direction) game-state)))
 
 (defn- take-object [ast game-state]
-  ;; TODO: Handle player already has object
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
         error (get-in ast [:direct-object :error])]
     ;(println "noun:" noun)
     (cond
-      (= error :no-known-noun)   (let [unknown (first (get-in ast [:direct-object :words]))]
-                                   (println "I don't see any" unknown "here."))
+      (= error :no-known-noun)                      (let [unknown (first (get-in ast [:direct-object :words]))]
+                                                      (println "I don't see any" unknown "here."))
 
-      object                     (let [location (game/location game-state)]
-                                   (game/add-to-inventory game-state object-key)
-                                   (room/remove-object location object-key)
-                                   (println "Taken."))
-                                 ;; TODO: Check properties to verify it is takeable
-                                 ;; TODO: Put object in inventory
+      (game/in-inventory? game-state object-key)    (println "You're already carrying that!")
 
-      :else                      (println "You can't take that."))))
+      object                                        (let [location (game/location game-state)]
+                                                      (game/add-to-inventory game-state object-key)
+                                                      (room/remove-object location object-key)
+                                                      (println "Taken."))
+                                                    ;; TODO: Check properties to verify it is takeable
+                                                    ;; TODO: Put object in inventory
+
+      :else                                         (println "You can't take that."))))
 
 (defn inventory [game-state]
   (let [object-keys (game/inventory game-state)]
