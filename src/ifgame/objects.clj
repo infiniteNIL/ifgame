@@ -2,7 +2,7 @@
 
 (def ^:private objects
   {:bird {:short-description "baby bird"
-          :description "Too young to fly, the nestling tweets helplessly."
+          :full-description "Too young to fly, the nestling tweets helplessly."
           :names ["bird" "nestling"]
           :adjectives ["baby"]
           :has #{}}
@@ -14,16 +14,16 @@
           :has #{:container :open}}
 
    :tree {:short-description "tall sycamore tree"
-           :full-description "Standing proud in the middle of the clearing, the stout tree looks easy to climb."
-           :names ["sycamore" "tree"]
-           :adjectives ["tall" "stout" "proud"]
-           :has #{:scenery}}
+          :full-description "Standing proud in the middle of the clearing, the stout tree looks easy to climb."
+          :names ["sycamore" "tree"]
+          :adjectives ["tall" "stout" "proud"]
+          :has #{:scenery}}
 
    :branch {:short-description "wide firm bough"
-             :full-description "It's flat enough to support a small object."
-             :names ["bough" "branch"]
-             :adjectives ["wide" "firm" "flat"]
-             :has #{:static :supporter}}})
+            :full-description "It's flat enough to support a small object."
+            :names ["bough" "branch"]
+            :adjectives ["wide" "firm" "flat"]
+            :has #{:static :supporter}}})
 
 (defn get-object-by-key [key]
   (key objects))

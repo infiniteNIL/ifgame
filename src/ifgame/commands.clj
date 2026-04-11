@@ -43,6 +43,7 @@
     (travel (normalize-direction direction) game-state)))
 
 (defn- take-object [ast game-state]
+  ;; TODO: Handle player already has object
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
@@ -71,6 +72,22 @@
             (println "  A" (:short-description obj)))))
       (println "You're not carrying anything."))))
 
+(defn examine [ast game-state]
+  ;; TODO: Verify object is in player's possession or in room
+  (let [noun (get-in ast [:direct-object :noun])
+        {object-key :key
+         object :object} (objects/get-object noun)
+        error (get-in ast [:direct-object :error])]
+    (cond
+      (= error :no-known-noun)  (let [unknown (first (get-in ast [:direct-object :words]))]
+                                  (println "Don't concern yourself with that."))
+
+      object                    (if-let [desc (:full-description object)]
+                                  (println desc)
+                                  (println "You see nothing special about the" (str noun ".")))
+
+      :else                     (println "Don't concern yourself with that."))))
+
 (defn process-cmd [ast game-state]
   (let [verb (:verb ast)]
     (println ast)
@@ -91,9 +108,8 @@
       ;; TODO: Implement drop command
       (= verb "drop")            (println "You can't drop that.")
 
-      ;; TODO: Extract noun
-      (= verb "examine")         (println "You see nothing special about the ????")
+      (= verb "examine")         (examine ast game-state)
 
       (empty? verb)              (println "Excuse me?")
 
-      :else                      (println "What? I don't know what" (str \" verb \") "means."))))
+      :else                      (println "Sorry, I don't know what" (str \" verb \") "means."))))
