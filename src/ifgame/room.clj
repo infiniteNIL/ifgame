@@ -46,6 +46,10 @@
 (defn objects [location]
   (:objects @location))
 
+(defn add-object [location object-key]
+  (let [new-objects (conj (objects location) object-key)]
+    (alter-var-root location assoc :objects new-objects)))
+
 (defn remove-object [location object-key]
   (let [new-objects (remove #{object-key} (:objects location))]
     (alter-var-root location assoc :objects new-objects)))

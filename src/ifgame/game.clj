@@ -50,5 +50,9 @@
   (let [new-inventory (conj (:inventory @game-state) object-key)]
     (swap! game-state assoc :inventory new-inventory)))
 
+(defn remove-from-inventory [game-state object-key]
+  (let [new-inventory (remove #{object-key} (:inventory @game-state))]
+    (swap! game-state assoc :inventory new-inventory)))
+
 (defn in-inventory? [game-state object-key]
   (some #{object-key} (inventory game-state)))

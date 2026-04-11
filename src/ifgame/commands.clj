@@ -44,6 +44,7 @@
     (travel (normalize-direction direction) game-state)))
 
 (defn- take-object [ast game-state]
+  ;; TODO: handle get all
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
@@ -62,9 +63,27 @@
 
       :else                                         (println "You can't take the" (str noun ".")))))
 
+(defn- drop-object [ast game-state]
+  ;; TODO: Handle Drop all
+  (let [noun (get-in ast [:direct-object :noun])
+        {object-key :key
+         object :object} (objects/get-object noun)
+        error (get-in ast [:direct-object :error])]
+    ;(println "noun:" noun)
+    (cond
+      (= error :no-known-noun)                          (let [noun (first (get-in ast [:direct-object :words]))]
+                                                          (println "You're not carrying a" (str noun ".")))
+
+      (not (game/in-inventory? game-state object-key))  (println "You're not carrying the" (str noun "."))
+
+      :else                                             (let [location (game/location game-state)]
+                                                          (game/remove-from-inventory game-state object-key)
+                                                          (room/add-object location object-key)
+                                                          (println "Dropped.")))))
+
 (defn inventory [game-state]
   (let [object-keys (game/inventory game-state)]
-    (if object-keys
+    (if-not (empty? object-keys)
       (do
         (println "You are carrying:")
         (doseq [key object-keys]
@@ -73,6 +92,7 @@
       (println "You're not carrying anything."))))
 
 (defn examine [ast game-state]
+  ;; TODO: Handle examine all or everything
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
@@ -86,6 +106,7 @@
       :else                       (println "You see nothing special about the" (str noun ".")))))
 
 (defn process-cmd [ast game-state]
+  ;; TODO: Make verbs definable like rooms and objects instead of hard-coded
   (let [verb (:verb ast)]
     ;(println ast)
     (cond
@@ -102,8 +123,7 @@
 
       (= verb "inventory")       (inventory game-state)
 
-      ;; TODO: Implement drop command
-      (= verb "drop")            (println "You can't drop that.")
+      (= verb "drop")            (drop-object ast game-state)
 
       (= verb "examine")         (examine ast game-state)
 
