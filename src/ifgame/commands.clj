@@ -1,9 +1,7 @@
 (ns ifgame.commands
   (:require [ifgame.game :as game]
+            [ifgame.objects :as objects]
             [ifgame.room :as room]))
-
-(defn quit-command? [verb]
-  (some #{verb} '("quit" "q" "x" "exit")))
 
 (defn verify-quit []
   (print "Are you sure? (Y/n) ")
@@ -18,9 +16,6 @@
                   "u" "up" "d" "down"
                   "nw" "northwest" "ne" "northeast"
                   "sw" "southwest" "se" "southeast")))
-
-(defn look-command? [verb]
-  (or (= verb "l") (= verb "look")))
 
 (defn travel [direction game-state]
   (let [destination (get @(game/location game-state) direction)]
@@ -43,20 +38,61 @@
               "sw" "southwest"}]
     (keyword (dirs direction direction))))
 
+(defn- go [ast game-state]
+  (let [direction (get-in ast [:direct-object :noun])]
+    (travel (normalize-direction direction) game-state)))
+
+(defn- take-object [ast game-state]
+  (let [noun (get-in ast [:direct-object :noun])
+        {object-key :key
+         object :object} (objects/get-object noun)
+        error (get-in ast [:direct-object :error])]
+    ;(println "noun:" noun)
+    (cond
+      (= error :no-known-noun)   (let [unknown (first (get-in ast [:direct-object :words]))]
+                                   (println "I don't see any" unknown "here."))
+
+      object                     (let [location (game/location game-state)]
+                                   (game/add-to-inventory game-state object-key)
+                                   (room/remove-object location object-key)
+                                   (println "Taken."))
+                                 ;; TODO: Check properties to verify it is takeable
+                                 ;; TODO: Put object in inventory
+
+      :else                      (println "You can't take that."))))
+
+(defn inventory [game-state]
+  (let [object-keys (game/inventory game-state)]
+    (if object-keys
+      (do
+        (println "You are carrying:")
+        (doseq [key object-keys]
+          (let [obj (objects/get-object-by-key key)]
+            (println "  A" (:short-description obj)))))
+      (println "You're not carrying anything."))))
+
 (defn process-cmd [ast game-state]
   (let [verb (:verb ast)]
-    ;(println ast)
+    (println ast)
     (cond
-      (look-command? verb)       (println (room/describe (game/location game-state) :full))
+      (= verb "look")            (println (room/describe (game/location game-state) :full))
 
-      (quit-command? verb)       (when (verify-quit)
+      (= verb "quit")            (when (verify-quit)
                                    (swap! game-state game/set-quit))
 
       (direction? verb)          (travel (normalize-direction verb) game-state)
 
-      (or (= verb "go")
-          (= verb "travel"))     (let [direction (get-in ast [:direct_object :noun])]
-                                   (travel (normalize-direction direction) game-state))
+      (= verb "go")              (go ast game-state)
+
+      (= verb "take")            (take-object ast game-state)
+
+      (= verb "inventory")       (inventory game-state)
+
+      ;; TODO: Implement drop command
+      (= verb "drop")            (println "You can't drop that.")
+
+      ;; TODO: Extract noun
+      (= verb "examine")         (println "You see nothing special about the ????")
 
       (empty? verb)              (println "Excuse me?")
 

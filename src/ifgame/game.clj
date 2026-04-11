@@ -5,7 +5,7 @@
 (defrecord Game [title headline author state turns location health])
 
 (def state (atom {:title "Heidi"
-                  :headline "A simple example"
+                  :headline "A Simple Example"
                   :author "Rod Schmidt"
                   :state :starting  ; can be :in-progress, :over, :won, etc.
                   :turns 0
@@ -43,3 +43,9 @@
 (defn over? [game-state]
   (= (:state game-state) :quit))
 
+(defn inventory [game-state]
+  (:inventory @game-state))
+
+(defn add-to-inventory [game-state object-key]
+  (let [new-inventory (conj (:inventory @game-state) object-key)]
+    (swap! game-state assoc :inventory new-inventory)))

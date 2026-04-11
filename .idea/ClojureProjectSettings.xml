@@ -4,6 +4,10 @@
     <option name="replScopeMapping">
       <list>
         <SerialisedReplScopeSetting>
+          <option name="replName" value="REPL" />
+          <option name="serialisedScope" value="project" />
+        </SerialisedReplScopeSetting>
+        <SerialisedReplScopeSetting>
           <option name="replName" value="REPL for ifgame" />
           <option name="serialisedScope" value="all" />
         </SerialisedReplScopeSetting>

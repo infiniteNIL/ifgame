@@ -32,20 +32,23 @@
              :west #'before-cottage
              :northeast #'clearing
              :has #{:light}
-             :objects [#'objects/bird]})
+             ;:objects [#'objects/bird]})
+             :objects [:bird]})
 
 (def clearing {:name "A forest clearing"
                :description "A tall sycamore stands in the middle of this clearing. The path winds southwest through the trees."
                :southwest #'forest
                :up #'top-of-tree
                :has #{:light}
-               :objects [#'objects/nest #'objects/tree]})
+               ;:objects [#'objects/nest #'objects/tree]
+               :objects [:nest :tree]})
 
 (def top-of-tree {:name "At the top of the tree"
                   :description "You cling precariously to the trunk."
                   :down #'clearing
                   :has #{:light}
-                  :objects [#'objects/branch]})
+                  ;:objects [#'objects/branch]
+                  :objects [:branch]})
 
 #_(def test-room (room/map->Room {:name "Test Room"
                                   :description "This is a test room"}))
