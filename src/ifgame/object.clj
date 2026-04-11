@@ -18,3 +18,7 @@
 (defn get-adjectives [object-key]
   (let [obj (objects/get-object-by-key object-key)]
     (:adjectives obj)))
+
+(defn takeable? [object]
+  (not (or (contains? (:has object) :scenery)
+           (contains? (:has object) :static))))

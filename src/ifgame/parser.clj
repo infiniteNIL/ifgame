@@ -94,7 +94,7 @@
 
 (defn parse [str game-state]
   (let [vocab (build-vocab game-state)]
-    (println "vocab:" vocab)
+    ;(println "vocab:" vocab)
     (parse-command str vocab)))
 
 ;; Example of usage

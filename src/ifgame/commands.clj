@@ -1,5 +1,6 @@
 (ns ifgame.commands
   (:require [ifgame.game :as game]
+            [ifgame.object :as object]
             [ifgame.objects :as objects]
             [ifgame.room :as room]))
 
@@ -49,19 +50,17 @@
         error (get-in ast [:direct-object :error])]
     ;(println "noun:" noun)
     (cond
-      (= error :no-known-noun)                      (let [unknown (first (get-in ast [:direct-object :words]))]
-                                                      (println "I don't see any" unknown "here."))
+      (= error :no-known-noun)                      (let [noun (first (get-in ast [:direct-object :words]))]
+                                                      (println "You can't take the" (str noun ".")))
 
       (game/in-inventory? game-state object-key)    (println "You're already carrying that!")
 
-      object                                        (let [location (game/location game-state)]
+      (object/takeable? object)                     (let [location (game/location game-state)]
                                                       (game/add-to-inventory game-state object-key)
                                                       (room/remove-object location object-key)
                                                       (println "Taken."))
-                                                    ;; TODO: Check properties to verify it is takeable
-                                                    ;; TODO: Put object in inventory
 
-      :else                                         (println "You can't take that."))))
+      :else                                         (println "You can't take the" (str noun ".")))))
 
 (defn inventory [game-state]
   (let [object-keys (game/inventory game-state)]
@@ -74,24 +73,21 @@
       (println "You're not carrying anything."))))
 
 (defn examine [ast game-state]
-  ;; TODO: Verify object is in player's possession or in room
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
         error (get-in ast [:direct-object :error])]
     (cond
-      (= error :no-known-noun)  (let [unknown (first (get-in ast [:direct-object :words]))]
-                                  (println "Don't concern yourself with that."))
+      (= error :no-known-noun)    (let [noun (first (get-in ast [:direct-object :words]))]
+                                    (println "You see nothing special about the" (str noun ".")))
 
-      object                    (if-let [desc (:full-description object)]
-                                  (println desc)
-                                  (println "You see nothing special about the" (str noun ".")))
+      (:full-description object)  (println (:full-description object))
 
-      :else                     (println "Don't concern yourself with that."))))
+      :else                       (println "You see nothing special about the" (str noun ".")))))
 
 (defn process-cmd [ast game-state]
   (let [verb (:verb ast)]
-    (println ast)
+    ;(println ast)
     (cond
       (= verb "look")            (println (room/describe (game/location game-state) :full))
 
