@@ -45,6 +45,8 @@
 
 (defn- take-object [ast game-state]
   ;; TODO: handle get all
+  ;; FIX: get all works even when nothing there
+  ;; FIX: Get on non-existent object works
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
@@ -64,7 +66,6 @@
       :else                                         (println "You can't take the" (str noun ".")))))
 
 (defn- drop-object [ast game-state]
-  ;; TODO: Handle Drop all
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
@@ -73,6 +74,17 @@
     (cond
       (= error :no-known-noun)                          (let [noun (first (get-in ast [:direct-object :words]))]
                                                           (println "You're not carrying a" (str noun ".")))
+
+      (or (= noun "all") (= noun "everything"))         (let [object-keys (game/inventory game-state)
+                                                              location (game/location game-state)]
+                                                          (if object-keys
+                                                            (doseq [key object-keys]
+                                                              (let [obj (objects/get-object-by-key key)
+                                                                    name (first (:names obj))]
+                                                                (game/remove-from-inventory game-state key)
+                                                                (room/add-object location key)
+                                                                (println (str name ":") "Dropped.")))
+                                                            (println "You're not carrying anything.")))
 
       (not (game/in-inventory? game-state object-key))  (println "You're not carrying the" (str noun "."))
 
@@ -92,7 +104,6 @@
       (println "You're not carrying anything."))))
 
 (defn examine [ast game-state]
-  ;; TODO: Handle examine all or everything
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
@@ -100,6 +111,9 @@
     (cond
       (= error :no-known-noun)    (let [noun (first (get-in ast [:direct-object :words]))]
                                     (println "You see nothing special about the" (str noun ".")))
+
+      (or (= noun "all")
+          (= noun "everything"))  (println "You can only examine things one at a time.")
 
       (:full-description object)  (println (:full-description object))
 
