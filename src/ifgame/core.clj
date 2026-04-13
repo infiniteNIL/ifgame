@@ -24,6 +24,7 @@
     ;(println @game/state)
     (when-not (game/over? @game/state)
       (let [current-loc (game/location game/state)]
+        ;(println "room objects:" (room/objects current-loc))
         (when (not= prev-loc current-loc)
           (println (room/describe current-loc (if (room/first-visit? current-loc) :full :short))))
         (-> (get-command)

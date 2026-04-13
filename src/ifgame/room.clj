@@ -17,7 +17,7 @@
 
 (defn describe-objects [location]
   (let [objects (:objects @location)]
-    (when objects
+    (when-not (empty? objects)
       (str (reduce (fn [description obj-key]
                      (let [desc (object/describe obj-key :short)]
                        (cond
@@ -33,8 +33,9 @@
   [location verbosity]
   (let [room-desc (if (= verbosity :full)
                     (full-description location)
-                    (short-description location))]
-    (if-not (empty? (:objects @location))
+                    (short-description location))
+        object-descriptions (describe-objects location)]
+    (if-not (empty? object-descriptions)
       (str room-desc \newline (describe-objects location))
       room-desc)))
 
@@ -51,5 +52,5 @@
     (alter-var-root location assoc :objects new-objects)))
 
 (defn remove-object [location object-key]
-  (let [new-objects (remove #{object-key} (:objects location))]
+  (let [new-objects (remove #{object-key} (objects location))]
     (alter-var-root location assoc :objects new-objects)))

@@ -88,12 +88,14 @@
         inv-names (mapcat object/get-names (game/inventory game-state))
         names (mapcat object/get-names object-keys)
         adjs (mapcat object/get-adjectives object-keys)]
+    ;(println "vocab object-keys:" object-keys)
     (-> {}
         (into {:nouns (set (concat (directions) names inv-names #{"all" "everything"}))})
         (into {:adjectives (set adjs)}))))
 
 (defn parse [str game-state]
   (let [vocab (build-vocab game-state)]
+    ;(println "vocab:" vocab)
     (parse-command str vocab)))
 
 ;; Example of usage
