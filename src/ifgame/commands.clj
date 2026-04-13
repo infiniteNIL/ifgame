@@ -77,8 +77,7 @@
 
 (defn- drop-object [ast game-state]
   (let [noun (get-in ast [:direct-object :noun])
-        {object-key :key
-         object :object} (objects/get-object noun)
+        {object-key :key} (objects/get-object noun)
         error (get-in ast [:direct-object :error])]
     ;(println "noun:" noun)
     (cond
