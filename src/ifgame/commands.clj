@@ -44,9 +44,6 @@
     (travel (normalize-direction direction) game-state)))
 
 (defn- take-object [ast game-state]
-  ;; TODO: handle get all
-  ;; FIX: get all works even when nothing there
-  ;; FIX: Get on non-existent object works
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
@@ -57,6 +54,19 @@
                                                       (println "You can't take the" (str noun ".")))
 
       (game/in-inventory? game-state object-key)    (println "You're already carrying that!")
+
+      (or (= noun "all") (= noun "everything"))     (let [location (game/location game-state)
+                                                          object-keys (room/objects location)]
+                                                      (if (not (empty? object-keys))
+                                                        (doseq [key object-keys]
+                                                          (let [obj (objects/get-object-by-key key)
+                                                                name (first (:names obj))]
+                                                            (if (object/takeable? obj)
+                                                              (do (game/add-to-inventory game-state key)
+                                                                  (room/remove-object location key)
+                                                                  (println (str name ":") "Taken."))
+                                                              (println (str name ":") "You can't take that."))))
+                                                        (println "There is nothing here you can take.")))
 
       (object/takeable? object)                     (let [location (game/location game-state)]
                                                       (game/add-to-inventory game-state object-key)
