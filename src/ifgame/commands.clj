@@ -4,7 +4,7 @@
             [ifgame.objects :as objects]
             [ifgame.room :as room]))
 
-(defn verify-quit []
+(defn- verify-quit []
   (print "Are you sure? (Y/n) ")
   (flush)
   (let [answer (read-line)]
@@ -12,13 +12,14 @@
         (= answer "Y")
         (= answer ""))))
 
-(defn direction? [verb]
-  (some #{verb} '("n" "north" "s" "south" "e" "east" "w" "west"
-                  "u" "up" "d" "down"
-                  "nw" "northwest" "ne" "northeast"
-                  "sw" "southwest" "se" "southeast")))
+(defn- direction? [verb]
+  (contains? #{"n" "north" "s" "south" "e" "east" "w" "west"
+               "u" "up" "d" "down"
+               "nw" "northwest" "ne" "northeast"
+               "sw" "southwest" "se" "southeast"}
+             verb))
 
-(defn travel [direction game-state]
+(defn- travel [direction game-state]
   (let [destination (get @(game/location game-state) direction)]
     (if (nil? destination)
       (println "You can't go that way.")
@@ -26,7 +27,7 @@
         (room/visit destination)
         (game/set-location game-state destination)))))
 
-(defn normalize-direction [direction]
+(defn- normalize-direction [direction]
   (let [dirs {"n" "north"
               "s" "south"
               "e" "east"
@@ -102,7 +103,7 @@
                                                           (room/add-object location object-key)
                                                           (println "Dropped.")))))
 
-(defn inventory [game-state]
+(defn- inventory [game-state]
   (let [object-keys (game/inventory game-state)]
     (if-not (empty? object-keys)
       (do
@@ -112,7 +113,7 @@
             (println "  A" (:short-description obj)))))
       (println "You're not carrying anything."))))
 
-(defn examine [ast game-state]
+(defn- examine [ast]
   (let [noun (get-in ast [:direct-object :noun])
         {object-key :key
          object :object} (objects/get-object noun)
@@ -148,7 +149,7 @@
 
       (= verb "drop")            (drop-object ast game-state)
 
-      (= verb "examine")         (examine ast game-state)
+      (= verb "examine")         (examine ast)
 
       (empty? verb)              (println "Excuse me?")
 
