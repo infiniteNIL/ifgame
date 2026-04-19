@@ -20,12 +20,19 @@
              verb))
 
 (defn- travel [direction game-state]
-  (let [destination (get @(game/location game-state) direction)]
-    (if (nil? destination)
+  (let [room-key (game/location game-state)
+        room (room/get-room room-key)
+        destination-key (get room direction)]
+    ;(println "travel destination-key:" destination-key)
+    ;(println "travel destination:" destination)
+    (if (nil? destination-key)
       (println "You can't go that way.")
-      (do
-        (room/visit destination)
-        (game/set-location game-state destination)))))
+      (let [destination (room/get-room destination-key)]
+        (if (nil? destination)
+          (println "Error - Invalid room id:" destination-key)
+          (do
+            (room/visit destination-key)
+            (game/set-location game-state destination-key)))))))
 
 (defn- normalize-direction [direction]
   (let [dirs {"n" "north"

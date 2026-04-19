@@ -19,9 +19,10 @@
   (swap! game-state assoc :location new-location))
 
 (defn init []
-  (if rooms/starting-location
-    (set-location state #'rooms/starting-location)
-    (set-location state #'rooms/darkness))
+  (if (and (find-var 'ifgame.rooms/starting-location)
+           rooms/starting-location)
+    (set-location state rooms/starting-location)
+    (set-location state :darkness))
   (room/visit (location state)))
 
 (defn title [game-state]

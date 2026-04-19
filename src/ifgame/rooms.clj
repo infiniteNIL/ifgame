@@ -1,54 +1,54 @@
 (ns ifgame.rooms
-  (:require [ifgame.objects :as objects]))
+  "Defines all the rooms in the game"
+  (:require [ifgame.room :refer [defroom]]))
 
-#_(declare north-room)
+(defroom :darkness
+         "Darkness"
+         "It is pitch black, and you can't see a thing.")
 
-#_(def start-room {:name "Starting Room"
-                   :description "You are in the starting room. A hallway leads north."
-                   :north #'north-room})
+;; TODO: Add fn to each room that needs it for special processing
+;; Processing order of objects functions:
+;; 1) The actor
+;; 2) The vehicle the actor is in
+;; 3) The indirect object if any
+;; 4) The direct object if any
+;; 5) The verb
+;; 6) The vehicle again
+;; 7) The room the player is in
+;; 8) Daemons that have no relation to the player's action
+;;
+;; If one handles it, the process of command is finished. A function may do something
+;; but not handle the command
+(defroom :before-cottage
+         "In front of a cottage"
+         "You stand outside a cottage. The forest stretches east."
+          :east :forest
+          :props #{:light})
 
-#_(def north-room {:name "North Room"
-                   :description "Your are in the north room. A hallway leads south."
-                   :south #'start-room})
+(def starting-location :before-cottage)
 
-#_(def east-room {:name "East Room"
-                  :description "This is the east room. A hallway leads west."
-                  :west #'start-room})
+(defroom :forest
+         "Deep in the forest"
+         "Through the dense foliage, you glimpse a building to the west. A track heads to the northeast."
+         :west :before-cottage
+         :northeast :clearing
+         :props #{:light}
+         ;:objects [#'objects/bird]})
+         :objects [:bird])
 
-(def darkness {:name "Darkness"
-               :description "It is pitch black, and you can't see a thing."})
+(defroom :clearing
+         "A forest clearing"
+         "A tall sycamore stands in the middle of this clearing. The path winds southwest through the trees."
+         :southwest :forest
+         :up :top-of-tree
+         :props #{:light}
+         ;:objects [#'objects/nest #'objects/tree]
+         :objects [:nest :tree])
 
-(declare clearing top-of-tree forest)
-
-(def before-cottage {:name "In front of a cottage"
-                     :description "You stand outside a cottage. The forest stretches east."
-                     :east #'forest
-                     :has #{:light}})
-
-(def starting-location before-cottage)
-
-(def forest {:name "Deep in the forest"
-             :description "Through the dense foliage, you glimpse a building to the west. A track heads to the northeast."
-             :west #'before-cottage
-             :northeast #'clearing
-             :has #{:light}
-             ;:objects [#'objects/bird]})
-             :objects [:bird]})
-
-(def clearing {:name "A forest clearing"
-               :description "A tall sycamore stands in the middle of this clearing. The path winds southwest through the trees."
-               :southwest #'forest
-               :up #'top-of-tree
-               :has #{:light}
-               ;:objects [#'objects/nest #'objects/tree]
-               :objects [:nest :tree]})
-
-(def top-of-tree {:name "At the top of the tree"
-                  :description "You cling precariously to the trunk."
-                  :down #'clearing
-                  :has #{:light}
-                  ;:objects [#'objects/branch]
-                  :objects [:branch]})
-
-#_(def test-room (room/map->Room {:name "Test Room"
-                                  :description "This is a test room"}))
+(defroom :top-of-tree
+         "At the top of the tree"
+         "You cling precariously to the trunk."
+         :down :clearing
+         :props #{:light}
+         ;:objects [#'objects/branch]
+         :objects [:branch])
