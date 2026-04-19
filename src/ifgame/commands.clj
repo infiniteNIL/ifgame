@@ -53,39 +53,37 @@
 
 (defn- take-object [ast game-state]
   (let [noun (get-in ast [:direct-object :noun])
-        {object-key :key
-         object :object} (objects/get-object noun)
+        obj-key (object/get-key noun)
         error (get-in ast [:direct-object :error])]
-    ;(println "noun:" noun)
     (cond
       (= error :no-known-noun)                      (let [noun (first (get-in ast [:direct-object :words]))]
                                                       (println "You can't take the" (str noun ".")))
 
-      (game/in-inventory? game-state object-key)    (println "You're already carrying that!")
+      (game/in-inventory? game-state obj-key)       (println "You're already carrying that!")
 
       (or (= noun "all") (= noun "everything"))     (let [location (game/location game-state)
                                                           object-keys (room/objects location)]
                                                       (if (not (empty? object-keys))
                                                         (doseq [key object-keys]
-                                                          (let [obj (objects/get-object-by-key key)
+                                                          (let [obj (object/get-object key)
                                                                 name (first (:names obj))]
-                                                            (if (object/takeable? obj)
+                                                            (if (object/takeable? key)
                                                               (do (game/add-to-inventory game-state key)
                                                                   (room/remove-object location key)
                                                                   (println (str name ":") "Taken."))
                                                               (println (str name ":") "You can't take that."))))
                                                         (println "There is nothing here you can take.")))
 
-      (object/takeable? object)                     (let [location (game/location game-state)]
-                                                      (game/add-to-inventory game-state object-key)
-                                                      (room/remove-object location object-key)
+      (object/takeable? obj-key)                    (let [location (game/location game-state)]
+                                                      (game/add-to-inventory game-state obj-key)
+                                                      (room/remove-object location obj-key)
                                                       (println "Taken."))
 
       :else                                         (println "You can't take the" (str noun ".")))))
 
 (defn- drop-object [ast game-state]
   (let [noun (get-in ast [:direct-object :noun])
-        {object-key :key} (objects/get-object noun)
+        obj-key (object/get-key noun)
         error (get-in ast [:direct-object :error])]
     ;(println "noun:" noun)
     (cond
@@ -96,18 +94,18 @@
                                                               location (game/location game-state)]
                                                           (if object-keys
                                                             (doseq [key object-keys]
-                                                              (let [obj (objects/get-object-by-key key)
+                                                              (let [obj (object/get-object key)
                                                                     name (first (:names obj))]
                                                                 (game/remove-from-inventory game-state key)
                                                                 (room/add-object location key)
                                                                 (println (str name ":") "Dropped.")))
                                                             (println "You're not carrying anything.")))
 
-      (not (game/in-inventory? game-state object-key))  (println "You're not carrying the" (str noun "."))
+      (not (game/in-inventory? game-state obj-key))     (println "You're not carrying the" (str noun "."))
 
       :else                                             (let [location (game/location game-state)]
-                                                          (game/remove-from-inventory game-state object-key)
-                                                          (room/add-object location object-key)
+                                                          (game/remove-from-inventory game-state obj-key)
+                                                          (room/add-object location obj-key)
                                                           (println "Dropped.")))))
 
 (defn- inventory [game-state]
@@ -116,14 +114,14 @@
       (do
         (println "You are carrying:")
         (doseq [key object-keys]
-          (let [obj (objects/get-object-by-key key)]
+          (let [obj (object/get-object key)]
             (println "  A" (:short-description obj)))))
       (println "You're not carrying anything."))))
 
 (defn- examine [ast]
   (let [noun (get-in ast [:direct-object :noun])
-        {object-key :key
-         object :object} (objects/get-object noun)
+        obj-key (object/get-key noun)
+        object (object/get-object obj-key)
         error (get-in ast [:direct-object :error])]
     (cond
       (= error :no-known-noun)    (let [noun (first (get-in ast [:direct-object :words]))]
@@ -132,7 +130,7 @@
       (or (= noun "all")
           (= noun "everything"))  (println "You can only examine things one at a time.")
 
-      (:full-description object)  (println (:full-description object))
+      (:full-description object)     (println (:full-description object))
 
       :else                       (println "You see nothing special about the" (str noun ".")))))
 
