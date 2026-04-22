@@ -41,9 +41,7 @@
           (println (room/describe current-loc (if (room/first-visit? current-loc) :full :short))))
         (let [obj-keys (room/objects current-loc)]
           (-> (get-command)
-              ;; TODO: Need to pass obj-keys to parser so it can create vocab
               (parser/parse game)
-              ;(parser/parse obj-keys)
               (cmd/process-cmd game))
           (game/update-game game))
         (recur current-loc)))))
