@@ -151,7 +151,7 @@
       (= verb "look")            (println (room/describe (:location @game) :full))
 
       (= verb "quit")            (when (verify-quit)
-                                   (swap! game game/set-quit))
+                                   (game/set-quit game))
 
       (direction? verb)          (travel (normalize-direction verb) game)
 

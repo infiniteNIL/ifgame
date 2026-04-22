@@ -18,8 +18,8 @@
 (defn init [game]
   (room/visit (:location @game)))
 
-(defn set-quit [game-state]
-  (assoc game-state :state :quit))
+(defn set-quit [game]
+  (swap! game assoc :state :quit))
 
 (defn update-game [game]
   ; Update turns and state
@@ -28,8 +28,8 @@
     (when (= (:state @game) :starting)
       (swap! game assoc :state :in-progress))))
 
-(defn over? [game-state]
-  (= (:state game-state) :quit))
+(defn over? [game]
+  (= (:state @game) :quit))
 
 (defn add-to-inventory [game-state object-key]
   (let [new-inventory (conj (:inventory @game-state) object-key)]
