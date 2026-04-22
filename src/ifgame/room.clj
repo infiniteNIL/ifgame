@@ -65,8 +65,8 @@
 
 (defn describe-objects [loc-key]
   (let [room (get-room loc-key)
-        objects (:objects room)]
-    (when-not (empty? objects)
+        obj-keys (:objects room)]
+    (when-not (empty? obj-keys)
       (str (reduce (fn [description obj-key]
                      (let [desc (object/describe obj-key :short)]
                        (cond
@@ -74,7 +74,7 @@
                          (empty? description)  desc
                          :else                 (str description \newline desc))))
                    ""
-                   (:objects room))))))
+                   obj-keys)))))
 
 (defn describe
   "Describe a room and it's contents. Verbosity is :full for the full description, otherwise a short description is

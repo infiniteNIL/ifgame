@@ -19,8 +19,8 @@
                "sw" "southwest" "se" "southeast"}
              verb))
 
-(defn- travel [direction game-state]
-  (let [room-key (game/location game-state)
+(defn- travel [direction game]
+  (let [room-key (:location @game)
         room (room/get-room room-key)
         destination-key (get room direction)]
     ;(println "travel destination-key:" destination-key)
@@ -32,7 +32,7 @@
           (println "Error - Invalid room id:" destination-key)
           (do
             (room/visit destination-key)
-            (game/set-location game-state destination-key)))))))
+            (game/set-location game destination-key)))))))
 
 (defn- normalize-direction [direction]
   (let [dirs {"n" "north"
@@ -51,7 +51,7 @@
   (let [direction (get-in ast [:direct-object :noun])]
     (travel (normalize-direction direction) game-state)))
 
-(defn- take-object [ast game-state]
+(defn- take-object [ast game]
   (let [noun (get-in ast [:direct-object :noun])
         obj-key (object/get-key noun)
         error (get-in ast [:direct-object :error])]
@@ -59,57 +59,57 @@
       (= error :no-known-noun)                      (let [noun (first (get-in ast [:direct-object :words]))]
                                                       (println "You can't take the" (str noun ".")))
 
-      (game/in-inventory? game-state obj-key)       (println "You're already carrying that!")
+      (game/in-inventory? game obj-key)             (println "You're already carrying that!")
 
-      (or (= noun "all") (= noun "everything"))     (let [location (game/location game-state)
+      (or (= noun "all") (= noun "everything"))     (let [location (:location @game)
                                                           object-keys (room/objects location)]
                                                       (if (not (empty? object-keys))
                                                         (doseq [key object-keys]
                                                           (let [obj (object/get-object key)
                                                                 name (first (:names obj))]
                                                             (if (object/takeable? key)
-                                                              (do (game/add-to-inventory game-state key)
+                                                              (do (game/add-to-inventory game key)
                                                                   (room/remove-object location key)
                                                                   (println (str name ":") "Taken."))
                                                               (println (str name ":") "You can't take that."))))
                                                         (println "There is nothing here you can take.")))
 
-      (object/takeable? obj-key)                    (let [location (game/location game-state)]
-                                                      (game/add-to-inventory game-state obj-key)
+      (object/takeable? obj-key)                    (let [location (:location @game)]
+                                                      (game/add-to-inventory game obj-key)
                                                       (room/remove-object location obj-key)
                                                       (println "Taken."))
 
       :else                                         (println "You can't take the" (str noun ".")))))
 
-(defn- drop-object [ast game-state]
+(defn- drop-object [ast game]
   (let [noun (get-in ast [:direct-object :noun])
         obj-key (object/get-key noun)
         error (get-in ast [:direct-object :error])]
     ;(println "noun:" noun)
     (cond
-      (= error :no-known-noun)                          (let [noun (first (get-in ast [:direct-object :words]))]
-                                                          (println "You're not carrying a" (str noun ".")))
+      (= error :no-known-noun)                    (let [noun (first (get-in ast [:direct-object :words]))]
+                                                    (println "You're not carrying a" (str noun ".")))
 
-      (or (= noun "all") (= noun "everything"))         (let [object-keys (game/inventory game-state)
-                                                              location (game/location game-state)]
-                                                          (if object-keys
-                                                            (doseq [key object-keys]
-                                                              (let [obj (object/get-object key)
-                                                                    name (first (:names obj))]
-                                                                (game/remove-from-inventory game-state key)
-                                                                (room/add-object location key)
-                                                                (println (str name ":") "Dropped.")))
-                                                            (println "You're not carrying anything.")))
+      (or (= noun "all") (= noun "everything"))   (let [object-keys (:inventory @game)
+                                                        location (:location @game)]
+                                                    (if object-keys
+                                                      (doseq [key object-keys]
+                                                        (let [obj (object/get-object key)
+                                                              name (first (:names obj))]
+                                                          (game/remove-from-inventory game key)
+                                                          (room/add-object location key)
+                                                          (println (str name ":") "Dropped.")))
+                                                      (println "You're not carrying anything.")))
 
-      (not (game/in-inventory? game-state obj-key))     (println "You're not carrying the" (str noun "."))
+      (not (game/in-inventory? game obj-key))     (println "You're not carrying the" (str noun "."))
 
-      :else                                             (let [location (game/location game-state)]
-                                                          (game/remove-from-inventory game-state obj-key)
-                                                          (room/add-object location obj-key)
-                                                          (println "Dropped.")))))
+      :else                                       (let [location (:location @game)]
+                                                    (game/remove-from-inventory game obj-key)
+                                                    (room/add-object location obj-key)
+                                                    (println "Dropped.")))))
 
-(defn- inventory [game-state]
-  (let [object-keys (game/inventory game-state)]
+(defn- inventory [game]
+  (let [object-keys (:inventory @game)]
     (if-not (empty? object-keys)
       (do
         (println "You are carrying:")
@@ -134,7 +134,7 @@
 
       :else                       (println "You see nothing special about the" (str noun ".")))))
 
-(defn process-cmd [ast game-state]
+(defn process-cmd [ast game]
   ;; TODO: Make verbs definable like rooms and objects instead of hard-coded
   (let [verb (:verb ast)
         ;; TODO: need transform, so s -> go south, for example
@@ -145,22 +145,23 @@
     ;(println ast)
     ;(println "action:" action)
     (cond
-      (= verb "look")            (println (room/describe (game/location game-state) :full))
       (and action-fn
            (action-fn ast game)) true
 
-      (= verb "quit")            (when (verify-quit)
-                                   (swap! game-state game/set-quit))
+      (= verb "look")               (println (room/describe (:location @game) :full))
 
-      (direction? verb)          (travel (normalize-direction verb) game-state)
+      (= verb "quit")               (when (verify-quit)
+                                      (swap! game game/set-quit))
 
-      (= verb "go")              (go ast game-state)
+      (direction? verb)             (travel (normalize-direction verb) game)
 
-      (= verb "take")            (take-object ast game-state)
+      (= verb "go")                 (go ast game)
 
-      (= verb "inventory")       (inventory game-state)
+      (= verb "take")            (take-object ast game)
 
-      (= verb "drop")            (drop-object ast game-state)
+      (= verb "inventory")       (inventory game)
+
+      (= verb "drop")            (drop-object ast game)
 
       (= verb "examine")         (examine ast)
 

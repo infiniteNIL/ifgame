@@ -82,10 +82,10 @@
     "u" "up" "d" "down"
     "ne" "northeast" "nw" "northwest" "se" "southeast" "sw" "southwest"})
 
-(defn- build-vocab [game-state]
-  (let [location (game/location game-state)
+(defn- build-vocab [game]
+  (let [location (:location @game)
         object-keys (room/objects location)
-        inv-names (mapcat object/get-names (game/inventory game-state))
+        inv-names (mapcat object/get-names (:inventory @game))
         names (mapcat object/get-names object-keys)
         adjs (mapcat object/get-adjectives object-keys)]
     ;(println "vocab object-keys:" object-keys)
@@ -93,8 +93,8 @@
         (into {:nouns (set (concat (directions) names inv-names #{"all" "everything"}))})
         (into {:adjectives (set adjs)}))))
 
-(defn parse [str game-state]
-  (let [vocab (build-vocab game-state)]
+(defn parse [str game]
+  (let [vocab (build-vocab game)]
     ;(println "vocab:" vocab)
     (parse-command str vocab)))
 
