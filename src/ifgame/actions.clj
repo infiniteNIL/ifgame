@@ -59,10 +59,27 @@
            :requires #{}
            :fn (fn [ast game-state]))
 
+(defaction :look
+           ["l" "look"]
+           :requires #{}
+           :fn (fn [ast game]
+                 (println (room/describe (:location @game) :full))
+                 true))
+
+(defn- verify-quit []
+  (print "Are you sure? (Y/n) ")
+  (flush)
+  (let [answer (read-line)]
+    (or (= answer "y")
+        (= answer "Y")
+        (= answer ""))))
+
 (defaction :quit
            ["q" "quit"]
            :requires #{}
-           :fn (fn [ast game-state]))
+           :fn (fn [ast game]
+                 (when (verify-quit)
+                   (game/set-quit game))))
 
 (defaction :take
            ["take" "get" "pick up"]

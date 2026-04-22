@@ -140,18 +140,28 @@
         ;; TODO: need transform, so s -> go south, for example
         ;; TODO: Should just pass direct object and indirect object to action
         ;; TODO: Parser should resolve action, direct object and indirect object
-        action (action/get-action verb)
+        action (:action ast)
         action-fn (:fn action)]
-    ;(println ast)
-    ;(println "action:" action)
+    (println "process-cmd ast:" ast)
+    (println "error:" (:error ast))
+    (println "noun:" (:noun ast))
+    (println "action:" (:action ast))
+    (println "action-fn:" action-fn)
+    (println "do:" (:direct-object ast))
+    (println "io:" (:indirect-object ast))
     (cond
-      (and action-fn
-           (action-fn ast game)) true
+      (= (:error ast) :unknown-action)    (let [verb (:verb ast)]
+                                            (if (nil? verb)
+                                              (println "Excuse me?")
+                                              (println "Sorry, I don't know what" (str \" verb \") "means."))
+                                            true)
 
-      (= verb "look")            (println (room/describe (:location @game) :full))
+      (= (:error ast) :no-known-noun)     (let [noun (:noun ast)]
+                                            ;; TODO: We could search room description and if there say something about it's not important.
+                                            (println "I don't see any" noun "here.")
+                                            true)
 
-      (= verb "quit")            (when (verify-quit)
-                                   (game/set-quit game))
+      action-fn                           (action-fn ast game)
 
       (direction? verb)          (travel (normalize-direction verb) game)
 
@@ -164,7 +174,5 @@
       (= verb "drop")            (drop-object ast game)
 
       (= verb "examine")         (examine ast)
-
-      (empty? verb)              (println "Excuse me?")
 
       :else                      (println "Sorry, I don't know what" (str \" verb \") "means."))))

@@ -1,5 +1,6 @@
 (ns ifgame.parser
   (:require [instaparse.core :as insta]
+            [ifgame.action :as action]
             [ifgame.object :as object]
             [ifgame.game :as game]
             [ifgame.room :as room]))
@@ -93,16 +94,42 @@
         (into {:nouns (set (concat (directions) names inv-names #{"all" "everything"}))})
         (into {:adjectives (set adjs)}))))
 
+(defn- transform-ast [ast]
+  (println "transform-ast:" ast)
+  (let [verb (:verb ast)
+        action (action/get-action verb)
+        error (or (get-in ast [:direct-object :error])
+                  (get-in ast [:indirect-object :error]))]
+    (cond
+      (nil? action)               (do
+                                    ;(println "no action found")
+                                    {:verb verb
+                                     :error :unknown-action})
+
+      ;; First check for any errors (i.e. unknown nouns
+      (= error :no-known-noun)    (let [noun (first (or (get-in ast [:direct-object :words])
+                                                        (get-in ast [:indirect-object :words])))]
+                                    ;(println "error no noun")
+                                    ;(println "noun:" noun)
+                                    {:noun noun
+                                     :error error})
+
+      :else                       (let [do-word (get-in ast [:direct-object :noun])
+                                        do-key (object/get-key do-word)
+                                        do (object/get-object do-key)
+                                        io-word (get-in ast [:indirect-object :noun])
+                                        io-key (object/get-key io-word)
+                                        io (object/get-key io-key)]
+                                    ;(println "extracting objects")
+                                    ;(println "do:" do)
+                                    ;(println "io:" io)
+                                    {:action action
+                                     :direct-object do
+                                     :indirect-object io}))))
+
 (defn parse [str game]
   (let [vocab (build-vocab game)]
     ;(println "vocab:" vocab)
-    (parse-command str vocab)))
-
-;; Example of usage
-(comment
-  ;; vocab is dynamic based on the current state of the game
-  (def vocab
-    {:nouns #{"key" "door" "sword" "bird" "baby" "troll"}
-     :adjectives #{"gold" "elvish" "green" "damn" "baby" "wooden"}})
-
-  (parse-command "use the gold key on the wooden door" vocab))
+    (-> str
+      (parse-command vocab)
+      (transform-ast))))
