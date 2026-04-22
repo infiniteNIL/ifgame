@@ -1,6 +1,7 @@
 (ns ifgame.actions
   "Defines all the default actions in a typical game"
   (:require [ifgame.action :refer [defaction]]
+            [ifgame.object :as object]
             [ifgame.room :as room]
             [ifgame.game :as game]))
 
@@ -57,7 +58,15 @@
 (defaction :inventory
            ["i" "inventory"]
            :requires #{}
-           :fn (fn [ast game-state]))
+           :fn (fn [ast game]
+                 (let [object-keys (:inventory @game)]
+                   (if-not (empty? object-keys)
+                     (do
+                       (println "You are carrying:")
+                       (doseq [key object-keys]
+                         (let [obj (object/get-object key)]
+                           (println "  A" (:short-description obj)))))
+                     (println "You're not carrying anything.")))))
 
 (defaction :look
            ["l" "look"]
@@ -79,7 +88,8 @@
            :requires #{}
            :fn (fn [ast game]
                  (when (verify-quit)
-                   (game/set-quit game))))
+                   (game/set-quit game))
+                 true))
 
 (defaction :take
            ["take" "get" "pick up"]

@@ -100,6 +100,7 @@
         action (action/get-action verb)
         error (or (get-in ast [:direct-object :error])
                   (get-in ast [:indirect-object :error]))]
+    ;; TODO: Need to handle directions
     (cond
       (nil? action)               (do
                                     ;(println "no action found")

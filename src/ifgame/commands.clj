@@ -108,16 +108,6 @@
                                                     (room/add-object location obj-key)
                                                     (println "Dropped.")))))
 
-(defn- inventory [game]
-  (let [object-keys (:inventory @game)]
-    (if-not (empty? object-keys)
-      (do
-        (println "You are carrying:")
-        (doseq [key object-keys]
-          (let [obj (object/get-object key)]
-            (println "  A" (:short-description obj)))))
-      (println "You're not carrying anything."))))
-
 (defn- examine [ast]
   (let [noun (get-in ast [:direct-object :noun])
         obj-key (object/get-key noun)
@@ -133,6 +123,17 @@
       (:full-description object)  (println (:full-description object))
 
       :else                       (println "You see nothing special about the" (str noun ".")))))
+
+(defn- handle-unknown-action [verb]
+  (if (nil? verb)
+    (println "Excuse me?")
+    (println "Sorry, I don't know what" (str \" verb \") "means."))
+  true)
+
+(defn- handle-unknown-noun [noun]
+  ;; TODO: We could search room description and if there say something about it's not important.
+  (println "I don't see any" noun "here.")
+  true)
 
 (defn process-cmd [ast game]
   ;; TODO: Make verbs definable like rooms and objects instead of hard-coded
@@ -150,16 +151,9 @@
     (println "do:" (:direct-object ast))
     (println "io:" (:indirect-object ast))
     (cond
-      (= (:error ast) :unknown-action)    (let [verb (:verb ast)]
-                                            (if (nil? verb)
-                                              (println "Excuse me?")
-                                              (println "Sorry, I don't know what" (str \" verb \") "means."))
-                                            true)
+      (= (:error ast) :unknown-action)    (handle-unknown-action (:verb ast))
 
-      (= (:error ast) :no-known-noun)     (let [noun (:noun ast)]
-                                            ;; TODO: We could search room description and if there say something about it's not important.
-                                            (println "I don't see any" noun "here.")
-                                            true)
+      (= (:error ast) :no-known-noun)     (handle-unknown-noun (:noun ast))
 
       action-fn                           (action-fn ast game)
 
@@ -169,7 +163,7 @@
 
       (= verb "take")            (take-object ast game)
 
-      (= verb "inventory")       (inventory game)
+      ;(= verb "inventory")       (inventory game)
 
       (= verb "drop")            (drop-object ast game)
 
