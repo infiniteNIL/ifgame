@@ -148,14 +148,14 @@
       (and action-fn
            (action-fn ast game)) true
 
-      (= verb "look")               (println (room/describe (:location @game) :full))
+      (= verb "look")            (println (room/describe (:location @game) :full))
 
-      (= verb "quit")               (when (verify-quit)
-                                      (swap! game game/set-quit))
+      (= verb "quit")            (when (verify-quit)
+                                   (swap! game game/set-quit))
 
-      (direction? verb)             (travel (normalize-direction verb) game)
+      (direction? verb)          (travel (normalize-direction verb) game)
 
-      (= verb "go")                 (go ast game)
+      (= verb "go")              (go ast game)
 
       (= verb "take")            (take-object ast game)
 

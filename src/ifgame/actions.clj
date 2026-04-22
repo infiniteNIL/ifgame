@@ -1,5 +1,5 @@
 (ns ifgame.actions
-  "Defines all the actions in the game"
+  "Defines all the default actions in a typical game"
   (:require [ifgame.action :refer [defaction]]
             [ifgame.room :as room]
             [ifgame.game :as game]))

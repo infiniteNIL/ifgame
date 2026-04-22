@@ -26,11 +26,10 @@
 
 (defn get-action [word]
   (let [key (->> @actions
-                   (keys)
-                   (filter #(some #{word} (:synonyms (%1 @actions))))
-                   first)]
-    (when key
-      (key @actions))))
+                 (keys)
+                 (filter #(some #{word} (:synonyms (%1 @actions))))
+                 first)]
+    (get @actions key)))
 
 (comment
   (defaction "take"
