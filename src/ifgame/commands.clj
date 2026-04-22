@@ -130,7 +130,7 @@
       (or (= noun "all")
           (= noun "everything"))  (println "You can only examine things one at a time.")
 
-      (:full-description object)     (println (:full-description object))
+      (:full-description object)  (println (:full-description object))
 
       :else                       (println "You see nothing special about the" (str noun ".")))))
 

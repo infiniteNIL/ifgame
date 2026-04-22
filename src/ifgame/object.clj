@@ -23,7 +23,7 @@
                            :fn fn}))
 
 (defn get-object [key]
-  (key @objects))
+  (get @objects key))
 
 (defn get-key
   "Get's an object by name and returns the key"
