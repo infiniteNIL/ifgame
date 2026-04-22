@@ -3,8 +3,7 @@
             [ifgame.room :as room]
             [ifgame.parser :as parser]
             [ifgame.game :as game]
-            [ifgame.actions]   ;; needs to be here to load game actions
-            [ifgame.objects])  ;; needs to be here to load game objects
+            [ifgame.actions])   ;; needs to be here to load game actions
   (:gen-class))
 
 (defn print-title [game]
