@@ -1,6 +1,5 @@
 (ns ifgame.game
-  (:require [ifgame.rooms :as rooms]  ;; required so rooms are loaded
-            [ifgame.room :as room]))
+  (:require [ifgame.room :as room]))
 
 ;(defrecord Game [title headline author state turns location health])
 
