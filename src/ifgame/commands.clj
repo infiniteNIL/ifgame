@@ -1,8 +1,8 @@
 (ns ifgame.commands
   (:require [ifgame.game :as game]
             [ifgame.object :as object]
-            [ifgame.objects :as objects]
-            [ifgame.room :as room]))
+            [ifgame.room :as room]
+            [ifgame.action :as action]))
 
 (defn- verify-quit []
   (print "Are you sure? (Y/n) ")
@@ -136,10 +136,18 @@
 
 (defn process-cmd [ast game-state]
   ;; TODO: Make verbs definable like rooms and objects instead of hard-coded
-  (let [verb (:verb ast)]
+  (let [verb (:verb ast)
+        ;; TODO: need transform, so s -> go south, for example
+        ;; TODO: Should just pass direct object and indirect object to action
+        ;; TODO: Parser should resolve action, direct object and indirect object
+        action (action/get-action verb)
+        action-fn (:fn action)]
     ;(println ast)
+    ;(println "action:" action)
     (cond
       (= verb "look")            (println (room/describe (game/location game-state) :full))
+      (and action-fn
+           (action-fn ast game)) true
 
       (= verb "quit")            (when (verify-quit)
                                    (swap! game-state game/set-quit))
