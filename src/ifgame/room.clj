@@ -85,7 +85,7 @@
                     (short-description loc-key))
         object-descriptions (describe-objects loc-key)]
     (if-not (empty? object-descriptions)
-      (str room-desc \newline (describe-objects loc-key))
+      (str room-desc \newline object-descriptions)
       room-desc)))
 
 (defn visit [loc-key]
