@@ -1,23 +1,4 @@
-(ns ifgame.commands
-  (:require [ifgame.game :as game]
-            [ifgame.object :as object]
-            [ifgame.room :as room]))
-
-(defn- examine [ast]
-  (let [noun (get-in ast [:direct-object :noun])
-        obj-key (object/get-key noun)
-        object (object/get-object obj-key)
-        error (get-in ast [:direct-object :error])]
-    (cond
-      (= error :no-known-noun)    (let [noun (first (get-in ast [:direct-object :words]))]
-                                    (println "You see nothing special about the" (str noun ".")))
-
-      (or (= noun "all")
-          (= noun "everything"))  (println "You can only examine things one at a time.")
-
-      (:full-description object)  (println (:full-description object))
-
-      :else                       (println "You see nothing special about the" (str noun ".")))))
+(ns ifgame.commands)
 
 (defn- handle-unknown-action [verb]
   (if (nil? verb)
@@ -31,24 +12,19 @@
   true)
 
 (defn process-cmd [ast game]
-  ;; TODO: Make verbs definable like rooms and objects instead of hard-coded
-  (let [verb (:verb ast)
-        ;; TODO: need transform, so s -> go south, for example
-        ;; TODO: Should just pass direct object and indirect object to action
-        ;; TODO: Parser should resolve action, direct object and indirect object
-        action (:action ast)
+  (let [action (:action ast)
         action-fn (:fn action)]
-    (println "process-cmd ast:" ast)
-    (when (:error ast)
-      (println "error:" (:error ast)))
-    (when (:noun ast)
-      (println "noun:" (:noun ast)))
+    ;(println "process-cmd ast:" ast)
+    ;(when (:error ast)
+    ;  (println "error:" (:error ast)))
+    ;(when (:noun ast)
+    ;  (println "noun:" (:noun ast)))
     ;(println "action:" (:action ast))
     ;(println "action-fn:" action-fn)
-    (when (:direct-object ast)
-      (println "do:" (:direct-object ast)))
-    (when (:indirect-object ast)
-      (println "io:" (:indirect-object ast)))
+    ;(when (:direct-object ast)
+    ;  (println "do:" (:direct-object ast)))
+    ;(when (:indirect-object ast)
+    ;  (println "io:" (:indirect-object ast)))
     (cond
       (= (:error ast) :unknown-action)    (handle-unknown-action (:verb ast))
 
@@ -56,7 +32,4 @@
 
       action-fn                           (action-fn ast game)
 
-      ;; TODO: Make into action
-      (= verb "examine")         (examine ast)
-
-      :else                      false)))
+      :else                               false)))

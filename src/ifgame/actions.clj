@@ -31,14 +31,30 @@
            ["drop" "put down"]
            :requires #{}
            :fn (fn [ast game]
-                 (let [obj-key (:do-key ast)]
-                   (drop-object ast game)
-                   true)))
+                 (drop-object ast game)
+                 true))
+
+(defn- examine [ast _game]
+  (let [noun (:do-word ast)
+        object (:direct-object ast)]
+    ;; TODO: We could search room description and if there say something about it's not important.
+    (cond
+      ;(= error :no-known-noun)    (let [noun (first (get-in ast [:direct-object :words]))]
+      ;                              (println "You see nothing special about the" (str noun ".")))
+
+      (or (= noun "all")
+          (= noun "everything"))  (println "You can only examine things one at a time.")
+
+      (:full-description object)  (println (:full-description object))
+
+      :else                       (println "You see nothing special about the" (str noun ".")))))
 
 (defaction :examine
            ["x" "examine"]
            :requires #{}
-           :fn (fn [ast game]))
+           :fn (fn [ast game]
+                 (examine ast game)
+                 true))
 
 (defn- normalize-direction [direction]
   (let [dirs {"n" "north"
@@ -69,7 +85,7 @@
             (game/set-location game destination-key)))))))
 
 (defn- go [ast game]
-  (let [direction (:direction ast) #_(get-in ast [:direct-object :noun])]
+  (let [direction (:direction ast)]
     (travel (normalize-direction direction) game)))
 
 (defaction :go
@@ -82,7 +98,7 @@
 (defaction :inventory
            ["i" "inventory"]
            :requires #{}
-           :fn (fn [ast game]
+           :fn (fn [_ast game]
                  (let [object-keys (:inventory @game)]
                    (if-not (empty? object-keys)
                      (do
@@ -96,7 +112,7 @@
 (defaction :look
            ["l" "look"]
            :requires #{}
-           :fn (fn [ast game]
+           :fn (fn [_ast game]
                  (println (room/describe (:location @game) :full))
                  true))
 
@@ -111,7 +127,7 @@
 (defaction :quit
            ["q" "quit"]
            :requires #{}
-           :fn (fn [ast game]
+           :fn (fn [_ast game]
                  (when (verify-quit)
                    (game/set-quit game))
                  true))
@@ -146,7 +162,6 @@
            ["take" "get" "pick up"]
            :requires #{}
            :fn (fn [ast game]
-                 (let [obj-key (:do-key ast)]
-                   (take-object ast game)
-                   true)))
+                 (take-object ast game)
+                 true))
 
