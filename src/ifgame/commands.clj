@@ -1,55 +1,6 @@
 (ns ifgame.commands
   (:require [ifgame.game :as game]
             [ifgame.object :as object]
-            [ifgame.room :as room]
-            [ifgame.action :as action]))
-
-(defn- verify-quit []
-  (print "Are you sure? (Y/n) ")
-  (flush)
-  (let [answer (read-line)]
-    (or (= answer "y")
-        (= answer "Y")
-        (= answer ""))))
-
-(defn- direction? [verb]
-  (contains? #{"n" "north" "s" "south" "e" "east" "w" "west"
-               "u" "up" "d" "down"
-               "nw" "northwest" "ne" "northeast"
-               "sw" "southwest" "se" "southeast"}
-             verb))
-
-(defn- travel [direction game]
-  (let [room-key (:location @game)
-        room (room/get-room room-key)
-        destination-key (get room direction)]
-    ;(println "travel destination-key:" destination-key)
-    ;(println "travel destination:" destination)
-    (if (nil? destination-key)
-      (println "You can't go that way.")
-      (let [destination (room/get-room destination-key)]
-        (if (nil? destination)
-          (println "Error - Invalid room id:" destination-key)
-          (do
-            (room/visit destination-key)
-            (game/set-location game destination-key)))))))
-
-(defn- normalize-direction [direction]
-  (let [dirs {"n" "north"
-              "s" "south"
-              "e" "east"
-              "w" "west"
-              "u" "up"
-              "d" "down"
-              "ne" "northeast"
-              "nw" "northwest"
-              "se" "southeast"
-              "sw" "southwest"}]
-    (keyword (dirs direction direction))))
-
-(defn- go [ast game-state]
-  (let [direction (get-in ast [:direct-object :noun])]
-    (travel (normalize-direction direction) game-state)))
 
 (defn- take-object [ast game]
   (let [noun (get-in ast [:direct-object :noun])
@@ -144,22 +95,22 @@
         action (:action ast)
         action-fn (:fn action)]
     (println "process-cmd ast:" ast)
-    (println "error:" (:error ast))
-    (println "noun:" (:noun ast))
-    (println "action:" (:action ast))
-    (println "action-fn:" action-fn)
-    (println "do:" (:direct-object ast))
-    (println "io:" (:indirect-object ast))
+    (when (:error ast)
+      (println "error:" (:error ast)))
+    (when (:noun ast)
+      (println "noun:" (:noun ast)))
+    ;(println "action:" (:action ast))
+    ;(println "action-fn:" action-fn)
+    (when (:direct-object ast)
+      (println "do:" (:direct-object ast)))
+    (when (:indirect-object ast)
+      (println "io:" (:indirect-object ast)))
     (cond
       (= (:error ast) :unknown-action)    (handle-unknown-action (:verb ast))
 
       (= (:error ast) :no-known-noun)     (handle-unknown-noun (:noun ast))
 
       action-fn                           (action-fn ast game)
-
-      (direction? verb)          (travel (normalize-direction verb) game)
-
-      (= verb "go")              (go ast game)
 
       (= verb "take")            (take-object ast game)
 

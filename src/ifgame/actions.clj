@@ -28,8 +28,8 @@
               "sw" "southwest"}]
     (keyword (dirs direction direction))))
 
-(defn- travel [direction game-state]
-  (let [room-key (:location game-state)
+(defn- travel [direction game]
+  (let [room-key (:location @game)
         room (room/get-room room-key)
         destination-key (get room direction)]
     ;(println "travel destination-key:" destination-key)
@@ -41,12 +41,11 @@
           (println "Error - Invalid room id:" destination-key)
           (do
             (room/visit destination-key)
-            (println "setting location in travel")
-            (game/set-location game-state destination-key)))))))
+            (game/set-location game destination-key)))))))
 
-(defn- go [ast game-state]
-  (let [direction (get-in ast [:direct-object :noun])]
-    (travel (normalize-direction direction) game-state)))
+(defn- go [ast game]
+  (let [direction (:direction ast) #_(get-in ast [:direct-object :noun])]
+    (travel (normalize-direction direction) game)))
 
 (defaction :go
            ["go" "walk"]

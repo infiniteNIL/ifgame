@@ -2,7 +2,6 @@
   (:require [instaparse.core :as insta]
             [ifgame.action :as action]
             [ifgame.object :as object]
-            [ifgame.game :as game]
             [ifgame.room :as room]))
 
 #_(def if-parser
@@ -83,6 +82,9 @@
     "u" "up" "d" "down"
     "ne" "northeast" "nw" "northwest" "se" "southeast" "sw" "southwest"})
 
+(defn- direction? [verb]
+  (contains? (directions) verb))
+
 (defn- build-vocab [game]
   (let [location (:location @game)
         object-keys (room/objects location)
@@ -94,18 +96,35 @@
         (into {:nouns (set (concat (directions) names inv-names #{"all" "everything"}))})
         (into {:adjectives (set adjs)}))))
 
+(defn- normalize-direction [direction]
+  (let [dirs {"n" "north"
+              "s" "south"
+              "e" "east"
+              "w" "west"
+              "u" "up"
+              "d" "down"
+              "ne" "northeast"
+              "nw" "northwest"
+              "se" "southeast"
+              "sw" "southwest"}]
+    (keyword (dirs direction direction))))
+
 (defn- transform-ast [ast]
-  (println "transform-ast:" ast)
+  ;(println "transform-ast:" ast)
   (let [verb (:verb ast)
         action (action/get-action verb)
         error (or (get-in ast [:direct-object :error])
                   (get-in ast [:indirect-object :error]))]
-    ;; TODO: Need to handle directions
     (cond
-      (nil? action)               (do
-                                    ;(println "no action found")
+      (nil? action)               (if (direction? verb)
+                                    {:action (action/get-action "go")
+                                     :direction (normalize-direction verb)}
                                     {:verb verb
                                      :error :unknown-action})
+
+      (= verb "go")               (let [dir (get-in ast [:direct-object :noun])]
+                                    {:action action
+                                     :direction (normalize-direction dir)})
 
       ;; First check for any errors (i.e. unknown nouns
       (= error :no-known-noun)    (let [noun (first (or (get-in ast [:direct-object :words])
