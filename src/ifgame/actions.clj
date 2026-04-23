@@ -5,15 +5,40 @@
             [ifgame.room :as room]
             [ifgame.game :as game]))
 
+(defn- drop-object [ast game]
+  (let [noun (:do-word ast)
+        obj-key (:do-key ast)]
+    (cond
+      (or (= noun "all") (= noun "everything"))   (let [object-keys (:inventory @game)
+                                                        location (:location @game)]
+                                                    (if object-keys
+                                                      (doseq [key object-keys]
+                                                        (let [obj (object/get-object key)
+                                                              name (first (:names obj))]
+                                                          (game/remove-from-inventory game key)
+                                                          (room/add-object location key)
+                                                          (println (str name ":") "Dropped.")))
+                                                      (println "You're not carrying anything.")))
+
+      (not (game/in-inventory? game obj-key))     (println "You're not carrying the" (str noun "."))
+
+      :else                                       (let [location (:location @game)]
+                                                    (game/remove-from-inventory game obj-key)
+                                                    (room/add-object location obj-key)
+                                                    (println "Dropped.")))))
+
 (defaction :drop
            ["drop" "put down"]
            :requires #{}
-           :fn (fn [ast game-state]))
+           :fn (fn [ast game]
+                 (let [obj-key (:do-key ast)]
+                   (drop-object ast game)
+                   true)))
 
 (defaction :examine
            ["x" "examine"]
            :requires #{}
-           :fn (fn [ast game-state]))
+           :fn (fn [ast game]))
 
 (defn- normalize-direction [direction]
   (let [dirs {"n" "north"

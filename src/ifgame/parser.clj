@@ -109,6 +109,8 @@
               "sw" "southwest"}]
     (keyword (dirs direction direction))))
 
+;; TODO: Actions could define what they need (do, io, etc.) and we could validate that
+
 (defn- transform-ast [ast]
   ;(println "transform-ast:" ast)
   (let [verb (:verb ast)
@@ -126,11 +128,9 @@
                                     {:action action
                                      :direction (normalize-direction dir)})
 
-      ;; First check for any errors (i.e. unknown nouns
+      ;; check for any errors (i.e. unknown nouns)
       (= error :no-known-noun)    (let [noun (first (or (get-in ast [:direct-object :words])
                                                         (get-in ast [:indirect-object :words])))]
-                                    ;(println "error no noun")
-                                    ;(println "noun:" noun)
                                     {:noun noun
                                      :error error})
 
@@ -138,9 +138,6 @@
                                         do-key (object/get-key do-word)
                                         io-word (get-in ast [:indirect-object :noun])
                                         io-key (object/get-key io-word)]
-                                    ;(println "extracting objects")
-                                    ;(println "do:" do)
-                                    ;(println "io:" io)
                                     {:action action
                                      :do-key do-key
                                      :do-word do-word

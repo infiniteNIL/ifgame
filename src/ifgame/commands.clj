@@ -3,33 +3,6 @@
             [ifgame.object :as object]
             [ifgame.room :as room]))
 
-(defn- drop-object [ast game]
-  (let [noun (get-in ast [:direct-object :noun])
-        obj-key (object/get-key noun)
-        error (get-in ast [:direct-object :error])]
-    ;(println "noun:" noun)
-    (cond
-      (= error :no-known-noun)                    (let [noun (first (get-in ast [:direct-object :words]))]
-                                                    (println "You're not carrying a" (str noun ".")))
-
-      (or (= noun "all") (= noun "everything"))   (let [object-keys (:inventory @game)
-                                                        location (:location @game)]
-                                                    (if object-keys
-                                                      (doseq [key object-keys]
-                                                        (let [obj (object/get-object key)
-                                                              name (first (:names obj))]
-                                                          (game/remove-from-inventory game key)
-                                                          (room/add-object location key)
-                                                          (println (str name ":") "Dropped.")))
-                                                      (println "You're not carrying anything.")))
-
-      (not (game/in-inventory? game obj-key))     (println "You're not carrying the" (str noun "."))
-
-      :else                                       (let [location (:location @game)]
-                                                    (game/remove-from-inventory game obj-key)
-                                                    (room/add-object location obj-key)
-                                                    (println "Dropped.")))))
-
 (defn- examine [ast]
   (let [noun (get-in ast [:direct-object :noun])
         obj-key (object/get-key noun)
@@ -83,8 +56,7 @@
 
       action-fn                           (action-fn ast game)
 
-      (= verb "drop")            (drop-object ast game)
-
+      ;; TODO: Make into action
       (= verb "examine")         (examine ast)
 
-      :else                      (println "Sorry, I don't know what" (str \" verb \") "means."))))
+      :else                      false)))
