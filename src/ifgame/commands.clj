@@ -25,6 +25,7 @@
     ;  (println "do:" (:direct-object ast)))
     ;(when (:indirect-object ast)
     ;  (println "io:" (:indirect-object ast)))
+    ;; TODO: Give direct and indirect objects a chance to handle action
     (cond
       (= (:error ast) :unknown-action)    (handle-unknown-action (:verb ast))
 
