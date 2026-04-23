@@ -136,16 +136,18 @@
 
       :else                       (let [do-word (get-in ast [:direct-object :noun])
                                         do-key (object/get-key do-word)
-                                        do (object/get-object do-key)
                                         io-word (get-in ast [:indirect-object :noun])
-                                        io-key (object/get-key io-word)
-                                        io (object/get-key io-key)]
+                                        io-key (object/get-key io-word)]
                                     ;(println "extracting objects")
                                     ;(println "do:" do)
                                     ;(println "io:" io)
                                     {:action action
-                                     :direct-object do
-                                     :indirect-object io}))))
+                                     :do-key do-key
+                                     :do-word do-word
+                                     :direct-object (object/get-object do-key)
+                                     :io-key io-key
+                                     :io-word io-word
+                                     :indirect-object (object/get-object io-key)}))))
 
 (defn parse [str game]
   (let [vocab (build-vocab game)]

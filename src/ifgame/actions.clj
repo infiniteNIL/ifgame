@@ -65,7 +65,8 @@
                        (doseq [key object-keys]
                          (let [obj (object/get-object key)]
                            (println "  A" (:short-description obj)))))
-                     (println "You're not carrying anything.")))))
+                     (println "You're not carrying anything."))
+                   true)))
 
 (defaction :look
            ["l" "look"]
@@ -90,8 +91,37 @@
                    (game/set-quit game))
                  true))
 
+(defn- take-object [ast game]
+  (let [noun (:do-word ast)
+        obj-key (:do-key ast)]
+    (cond
+      (game/in-inventory? game obj-key)             (println "You're already carrying that!")
+
+      (or (= noun "all") (= noun "everything"))     (let [location (:location @game)
+                                                          object-keys (room/objects location)]
+                                                      (if (not (empty? object-keys))
+                                                        (doseq [key object-keys]
+                                                          (let [obj (object/get-object key)
+                                                                name (first (:names obj))]
+                                                            (if (object/takeable? key)
+                                                              (do (game/add-to-inventory game key)
+                                                                  (room/remove-object location key)
+                                                                  (println (str name ":") "Taken."))
+                                                              (println (str name ":") "You can't take that."))))
+                                                        (println "There is nothing here you can take.")))
+
+      (object/takeable? obj-key)                    (let [location (:location @game)]
+                                                      (game/add-to-inventory game obj-key)
+                                                      (room/remove-object location obj-key)
+                                                      (println "Taken."))
+
+      :else                                         (println "You can't take the" (str noun ".")))))
+
 (defaction :take
            ["take" "get" "pick up"]
            :requires #{}
-           :fn (fn [ast game-state]))
+           :fn (fn [ast game]
+                 (let [obj-key (:do-key ast)]
+                   (take-object ast game)
+                   true)))
 

@@ -1,36 +1,7 @@
 (ns ifgame.commands
   (:require [ifgame.game :as game]
             [ifgame.object :as object]
-
-(defn- take-object [ast game]
-  (let [noun (get-in ast [:direct-object :noun])
-        obj-key (object/get-key noun)
-        error (get-in ast [:direct-object :error])]
-    (cond
-      (= error :no-known-noun)                      (let [noun (first (get-in ast [:direct-object :words]))]
-                                                      (println "You can't take the" (str noun ".")))
-
-      (game/in-inventory? game obj-key)             (println "You're already carrying that!")
-
-      (or (= noun "all") (= noun "everything"))     (let [location (:location @game)
-                                                          object-keys (room/objects location)]
-                                                      (if (not (empty? object-keys))
-                                                        (doseq [key object-keys]
-                                                          (let [obj (object/get-object key)
-                                                                name (first (:names obj))]
-                                                            (if (object/takeable? key)
-                                                              (do (game/add-to-inventory game key)
-                                                                  (room/remove-object location key)
-                                                                  (println (str name ":") "Taken."))
-                                                              (println (str name ":") "You can't take that."))))
-                                                        (println "There is nothing here you can take.")))
-
-      (object/takeable? obj-key)                    (let [location (:location @game)]
-                                                      (game/add-to-inventory game obj-key)
-                                                      (room/remove-object location obj-key)
-                                                      (println "Taken."))
-
-      :else                                         (println "You can't take the" (str noun ".")))))
+            [ifgame.room :as room]))
 
 (defn- drop-object [ast game]
   (let [noun (get-in ast [:direct-object :noun])
@@ -111,10 +82,6 @@
       (= (:error ast) :no-known-noun)     (handle-unknown-noun (:noun ast))
 
       action-fn                           (action-fn ast game)
-
-      (= verb "take")            (take-object ast game)
-
-      ;(= verb "inventory")       (inventory game)
 
       (= verb "drop")            (drop-object ast game)
 
