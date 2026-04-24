@@ -1,12 +1,19 @@
 (ns example.objects
-  (:require [ifgame.object :refer [defobject]]))
+  (:require [ifgame.action :as action]
+            [ifgame.object :refer [defobject]]))
 
 (defobject :bird
            :names ["bird" "nestling"]
            :short-description "baby bird"
            :full-description "Too young to fly, the nestling tweets helplessly."
            :adjectives ["baby"]
-           :props #{})
+           :props #{}
+           :fn (fn [ast game]
+                 (if (action/is-action? (:action ast) :take)
+                   (do
+                     (println "The bird pecks at your hand and you withdraw your hand quickly!")
+                     true)
+                   false)))
 
 (defobject :nest
            :names ["nest" "twigs" "moss"]

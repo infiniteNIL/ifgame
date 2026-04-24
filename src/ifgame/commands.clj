@@ -1,4 +1,6 @@
-(ns ifgame.commands)
+(ns ifgame.commands
+  (:require [clojure.string :as str]
+            [ifgame.room :as room]))
 
 (defn- handle-unknown-action [verb]
   (if (nil? verb)
@@ -10,6 +12,26 @@
   ;; TODO: We could search room description and if there say something about it's not important.
   (println "I don't see any" noun "here.")
   true)
+(defn- handle-errors [ast game]
+  ;(println "handle-errors")
+  (cond
+    (= (:error ast) :unknown-action) (handle-unknown-action (:verb ast))
+    (= (:error ast) :no-known-noun) (handle-unknown-noun (:noun ast) game)
+    :else false))
+
+(defn handle-object-action [key ast game]
+  (let [obj (key ast)
+        fn (:fn obj)]
+    (if fn
+      (do
+        ;(println "handle" key "action.")
+        (fn ast game))
+      false)))
+
+(defn- handle-object-actions [ast game]
+  (if (handle-object-action :indirect-object ast game)
+    true
+    (handle-object-action :direct-object ast game)))
 
 (defn process-cmd [ast game]
   (let [action (:action ast)
@@ -25,12 +47,13 @@
     ;  (println "do:" (:direct-object ast)))
     ;(when (:indirect-object ast)
     ;  (println "io:" (:indirect-object ast)))
-    ;; TODO: Give direct and indirect objects a chance to handle action
+    ;; BUG: When multiple objects in play (like "get all"), every object involved needs to be given a chance
+    ;;      to handle the action
     (cond
-      (= (:error ast) :unknown-action)    (handle-unknown-action (:verb ast))
-
-      (= (:error ast) :no-known-noun)     (handle-unknown-noun (:noun ast))
-
-      action-fn                           (action-fn ast game)
-
-      :else                               false)))
+      (handle-errors ast game)                          true
+      ;(= (:error ast) :unknown-action)    (handle-unknown-action (:verb ast))
+      ;(= (:error ast) :no-known-noun)     (handle-unknown-noun (:noun ast))
+      (handle-object-action :indirect-object ast game)  true
+      (handle-object-action :direct-object ast game)    true
+      action-fn                                         (action-fn ast game)
+      :else                                             false)))
