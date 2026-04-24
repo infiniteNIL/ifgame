@@ -8,10 +8,15 @@
     (println "Sorry, I don't know what" (str \" verb \") "means."))
   true)
 
-(defn- handle-unknown-noun [noun]
-  ;; TODO: We could search room description and if there say something about it's not important.
-  (println "I don't see any" noun "here.")
-  true)
+(defn- handle-unknown-noun [noun game]
+  (let [room-key (:location @game)
+        room (room/get-room room-key)
+        desc (:desc room)]
+    (if (str/includes? desc noun)
+      (println "You cannot do anything with the" (str noun "."))
+      (println "I don't see any" noun "here."))
+    true))
+
 (defn- handle-errors [ast game]
   ;(println "handle-errors")
   (cond
