@@ -24,12 +24,18 @@
                            :forms forms
                            :fn fn}))
 
-(defn get-action [word]
+(defn get-action-by-word [word]
   (let [key (->> @actions
                  (keys)
                  (filter #(some #{word} (:synonyms (%1 @actions))))
                  first)]
     (get @actions key)))
+
+(defn get-action-by-key [key]
+  (get @actions key))
+
+(defn is-action? [action key]
+  (= action (get-action-by-key key)))
 
 (comment
   (defaction "take"

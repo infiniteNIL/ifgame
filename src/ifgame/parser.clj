@@ -114,12 +114,12 @@
 (defn- transform-ast [ast]
   ;(println "transform-ast:" ast)
   (let [verb (:verb ast)
-        action (action/get-action verb)
+        action (action/get-action-by-word verb)
         error (or (get-in ast [:direct-object :error])
                   (get-in ast [:indirect-object :error]))]
     (cond
       (nil? action)               (if (direction? verb)
-                                    {:action (action/get-action "go")
+                                    {:action (action/get-action-by-word "go")
                                      :direction (normalize-direction verb)}
                                     {:verb verb
                                      :error :unknown-action})
