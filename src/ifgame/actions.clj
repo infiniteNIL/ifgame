@@ -37,11 +37,7 @@
 (defn- examine [ast _game]
   (let [noun (:do-word ast)
         object (:direct-object ast)]
-    ;; TODO: We could search room description and if there say something about it's not important.
     (cond
-      ;(= error :no-known-noun)    (let [noun (first (get-in ast [:direct-object :words]))]
-      ;                              (println "You see nothing special about the" (str noun ".")))
-
       (or (= noun "all")
           (= noun "everything"))  (println "You can only examine things one at a time.")
 

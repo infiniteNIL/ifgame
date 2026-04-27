@@ -2,6 +2,8 @@
   (:require [ifgame.action :as action]
             [ifgame.object :refer [defobject]]))
 
+;; TODO: Shouldn't be able to climb tree with more than 1 item (i.e. bird needs to be in nest)
+;; TODO: Win game by putting nest on branch
 (defobject :bird
            :names ["bird" "nestling"]
            :short-description "baby bird"

@@ -17,18 +17,9 @@
   (flush)
   (read-line))
 
-;; Processing order of objects functions:
-;; 1) The actor
-;; 2) The vehicle the actor is in
-;; 3) The indirect object if any
-;; 4) The direct object if any
-;; 5) The verb
-;; 6) The vehicle again
-;; 7) The room the player is in
-;; 8) Daemons that have no relation to the player's action
-;;
-;; If one handles it, the process of command is finished. A function may do something
-;; but not handle the command
+;; TODO: Need to handle darkness (when room doesn't have light prop)
+;; TODO: Need to handle containers
+;; TODO: Need to handle max items carried
 (defn start-game [game]
   (print-title game)
   (println)

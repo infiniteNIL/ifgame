@@ -18,7 +18,6 @@
     true))
 
 (defn- handle-errors [ast game]
-  ;(println "handle-errors")
   (cond
     (= (:error ast) :unknown-action) (handle-unknown-action (:verb ast))
     (= (:error ast) :no-known-noun) (handle-unknown-noun (:noun ast) game)
@@ -28,36 +27,25 @@
   (let [obj (key ast)
         fn (:fn obj)]
     (if fn
-      (do
-        ;(println "handle" key "action.")
-        (fn ast game))
+      (fn ast game)
       false)))
 
-(defn- handle-object-actions [ast game]
-  (if (handle-object-action :indirect-object ast game)
-    true
-    (handle-object-action :direct-object ast game)))
-
+;; Processing order of objects functions:
+;; 1) The indirect object if any
+;; 2) The direct object if any
+;; 3) The verb
+;; 4) The room the player is in
+;; 5) Daemons that have no relation to the player's action
+;;
+;; If one handles it, the process of command is finished. A function may do something
+;; but not handle the command
 (defn process-cmd [ast game]
   (let [action (:action ast)
         action-fn (:fn action)]
-    ;(println "process-cmd ast:" ast)
-    ;(when (:error ast)
-    ;  (println "error:" (:error ast)))
-    ;(when (:noun ast)
-    ;  (println "noun:" (:noun ast)))
-    ;(println "action:" (:action ast))
-    ;(println "action-fn:" action-fn)
-    ;(when (:direct-object ast)
-    ;  (println "do:" (:direct-object ast)))
-    ;(when (:indirect-object ast)
-    ;  (println "io:" (:indirect-object ast)))
     ;; BUG: When multiple objects in play (like "get all"), every object involved needs to be given a chance
     ;;      to handle the action
     (cond
       (handle-errors ast game)                          true
-      ;(= (:error ast) :unknown-action)    (handle-unknown-action (:verb ast))
-      ;(= (:error ast) :no-known-noun)     (handle-unknown-noun (:noun ast))
       (handle-object-action :indirect-object ast game)  true
       (handle-object-action :direct-object ast game)    true
       action-fn                                         (action-fn ast game)
