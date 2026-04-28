@@ -9,19 +9,20 @@
            :short-description "baby bird"
            :full-description "Too young to fly, the nestling tweets helplessly."
            :adjectives ["baby"]
-           :props #{}
-           :fn (fn [ast game]
-                 (if (action/is-action? (:action ast) :take)
-                   (do
-                     (println "The bird pecks at your hand and you withdraw your hand quickly!")
-                     true)
-                   false)))
+           :props #{})
+           ;:fn (fn [ast game]
+           ;      (if (action/is-action? (:action ast) :take)
+           ;        (do
+           ;          (println "The bird pecks at your hand and you withdraw your hand quickly!")
+           ;          true)
+           ;        false)))
 
 (defobject :nest
            :names ["nest" "twigs" "moss"]
            :short-description "bird's nest"
            :full-description "The nest is carefully woven of twigs and moss."
            :adjectives ["bird"]
+           :contains #{}
            :props #{:container :open})
 
 (defobject :tree

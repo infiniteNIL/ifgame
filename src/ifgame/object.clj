@@ -8,17 +8,20 @@
      :names  - A vector of names that object can be referred to as.
      short-description - A short description for the object. Used to describe in a room or inventory.
      full-description - A full description of the object. Used when examining the object
+     :contents - the object keys inside this object (must have container property)
      :props - set of properties for the object.
      :fn - the object's action handler."
-  [id & {:keys [names short-description full-description adjectives props fn]
+  [id & {:keys [names short-description full-description adjectives contents props fn]
          :or {full-description nil
               adjectives []
+              contents #{}
               props #{}
               fn nil}}]
   (swap! objects assoc id {:short-description short-description
                            :full-description full-description
                            :names names
                            :adjectives adjectives
+                           :contents contents
                            :props props
                            :fn fn}))
 
@@ -57,3 +60,12 @@
   (let [obj (get-object obj-key)]
     (not (or (contains? (:props obj) :scenery)
              (contains? (:props obj) :static)))))
+
+(defn container? [obj-key]
+  (let [obj (get-object obj-key)]
+    (contains? (:props obj) :container)))
+
+(defn add-contents [container-key obj-key]
+  (let [container-obj (get-object container-key)
+        old-contents (:contents container-obj)]
+    (swap! objects assoc-in [container-key :contents] (conj old-contents obj-key))))
