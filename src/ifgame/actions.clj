@@ -101,7 +101,13 @@
                        (println "You are carrying:")
                        (doseq [key object-keys]
                          (let [obj (object/get-object key)]
-                           (println "  A" (:short-description obj)))))
+                           ;; TODO: Needs to be recursive to handle containers within containers
+                           (println "  A" (:short-description obj))
+                           (when (and (object/container? key) (:contents obj))
+                             (println "  The" (:short-description obj) "contains:")
+                             (doseq [key (:contents obj)]
+                               (let [o (object/get-object key)]
+                                 (println "    A" (:short-description o))))))))
                      (println "You're not carrying anything."))
                    true)))
 

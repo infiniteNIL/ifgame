@@ -18,8 +18,6 @@
   (read-line))
 
 ;; TODO: Need to handle darkness (when room doesn't have light prop)
-;; TODO: Need to handle containers
-;; TODO: Need to handle max items carried
 (defn start-game [game]
   (print-title game)
   (println)

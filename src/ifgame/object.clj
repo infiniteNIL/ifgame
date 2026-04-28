@@ -2,6 +2,7 @@
 
 (def ^:private objects (atom {}))
 
+;; TODO: Do we need an initial description for objects
 (defn defobject
   "Add an object to the game.
      id - a keyword for the object.
@@ -38,15 +39,33 @@
               nil)))
         (keys @objects)))
 
+(declare container?)
+
 (defn describe
   "Returns the description of an object. If verbosity is :full returns a full description, otherwise returns the short
   one."
   [object-key verbosity]
-  (let [object (get-object object-key)]
-    (cond
-      (contains? (:props object) :scenery)   nil
-      (= verbosity :full)                    (str "There is a " (:full-description object) " here.")
-      :else                                  (str "There is a " (:short-description object) " here."))))
+  (let [object (get-object object-key)
+        short-desc (:short-description object)
+        full-desc (:full-description object)]
+    (if (contains? (:props object) :scenery)
+      nil
+      (cond
+        (or (not (container? object-key))
+            (empty? (:contents object)))     (if (= verbosity :full)
+                                               (str "There is a " full-desc " here.")
+                                               (str "There is a " short-desc " here."))
+
+        :else                                (str "There is a "
+                                                  (if (= verbosity :full) full-desc short-desc)
+                                                  " here."
+                                                  " The " short-desc " contains:"
+                                                  \newline
+                                                  (reduce (fn [result obj-key]
+                                                            (let [obj (get-object obj-key)]
+                                                              (str result "  A " (:short-description obj))))
+                                                          ""
+                                                          (:contents object)))))))
 
 (defn get-names [object-key]
   (let [obj (get-object object-key)]
