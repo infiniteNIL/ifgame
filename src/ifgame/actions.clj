@@ -112,6 +112,31 @@
                  (println (room/describe (:location @game) :full))
                  true))
 
+(declare take-object)
+
+(defaction :place
+           ["place" "put"]
+           :requires #{:direct-object :preposition :indirect-object}
+           :fn (fn [ast game]
+                 ;(println "place ast:" ast)
+                 (let [do-key (:do-key ast)
+                       do-obj (object/get-object do-key)
+                       io-key (:io-key ast)
+                       io-obj (object/get-object io-key)]
+                   (when (not (game/in-inventory? game do-key))
+                     (take-object ast game))
+                   (cond
+                     (not (game/in-inventory? game do-key))    (do (println "You're not carrying the" (:short-description do-obj))
+                                                                   true)
+
+                     (not (object/container? io-key))          (do (println "You can't put anything in the" (:short-description io-obj))
+                                                                   true)
+
+                     :else                                     (do (object/add-contents io-key do-key)
+                                                                   (game/remove-from-inventory game do-key)
+                                                                   (println "You place the" (:short-description do-obj) "in the" (str (:short-description io-obj) "."))
+                                                                   true)))))
+
 (defn- verify-quit []
   (print "Are you sure? (Y/n) ")
   (flush)
