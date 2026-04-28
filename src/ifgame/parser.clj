@@ -21,7 +21,7 @@
 (def ^:private if-parser
   (insta/parser
     "<S> = verb (<article?> word+ (preposition <article?> word+)?)?
-     verb = #'\\w+'
+     verb = 'put down' | 'pick up' | #'\\w+'
      word = #'(?!(?:the|a|an)\\b)\\w+'
      preposition = 'on' | 'with' | 'to' | 'in' | 'by' | 'under'
      <article> = 'a' | 'an' | 'the'"
@@ -72,6 +72,7 @@
                               [(words-of (take prep-idx parts))
                                (words-of (drop (inc prep-idx) parts))]
                               [(words-of parts) nil])]
+    ;(println "tree:" tree)
     {:verb (normalize-verb verb)
      :direct-object (when (seq do-words) (classify do-words vocab))
      :preposition (when prep-idx (second (nth parts prep-idx)))
