@@ -48,24 +48,24 @@
   (let [object (get-object object-key)
         short-desc (:short-description object)
         full-desc (:full-description object)]
-    (if (scenery? object)
-      nil
-      (cond
-        (or (not (container? object-key))
-            (empty? (:contents object)))     (if (= verbosity :full)
-                                               (str "There is a " full-desc " here.")
-                                               (str "There is a " short-desc " here."))
+    (cond
+      (scenery? object)                    nil
 
-        :else                                (str "There is a "
-                                                  (if (= verbosity :full) full-desc short-desc)
-                                                  " here."
-                                                  " The " short-desc " contains:"
-                                                  \newline
-                                                  (reduce (fn [result obj-key]
-                                                            (let [obj (get-object obj-key)]
-                                                              (str result "  A " (:short-description obj))))
-                                                          ""
-                                                          (:contents object)))))))
+      (or (not (container? object-key))
+          (empty? (:contents object)))     (if (= verbosity :full)
+                                             (str "There is a " full-desc " here.")
+                                             (str "There is a " short-desc " here."))
+
+      :else                                (str "There is a "
+                                                (if (= verbosity :full) full-desc short-desc)
+                                                " here."
+                                                " The " short-desc " contains:"
+                                                \newline
+                                                (reduce (fn [result obj-key]
+                                                          (let [obj (get-object obj-key)]
+                                                            (str result "  A " (:short-description obj))))
+                                                        ""
+                                                        (:contents object))))))
 
 (defn get-names [object-key]
   (let [obj (get-object object-key)]
