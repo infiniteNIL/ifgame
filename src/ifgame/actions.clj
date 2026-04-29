@@ -103,7 +103,7 @@
                          (let [obj (object/get-object key)]
                            ;; TODO: Needs to be recursive to handle containers within containers
                            (println "  A" (:short-description obj))
-                           (when (and (object/container? key) (:contents obj))
+                           (when (and (object/container? key) (not-empty (:contents obj)))
                              (println "  The" (:short-description obj) "contains:")
                              (doseq [key (:contents obj)]
                                (let [o (object/get-object key)]
