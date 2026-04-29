@@ -120,8 +120,10 @@
 
 (declare take-object)
 
+;; TODO: put bird in nest and put nest on branch are different actions (different prepositions)
 (defaction :place
            ["place" "put"]
+           ;; TODO: Parser should enforce this
            :requires #{:direct-object :preposition :indirect-object}
            :fn (fn [ast game]
                  ;(println "place ast:" ast)
@@ -162,6 +164,7 @@
 (defn- take-object [ast game]
   (let [noun (:do-word ast)
         obj-key (:do-key ast)]
+    ;; TODO: Should be able to get objects in containers
     (cond
       (game/in-inventory? game obj-key)             (println "You're already carrying that!")
 

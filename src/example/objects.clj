@@ -25,6 +25,7 @@
            :contains #{}
            :props #{:container :open})
 
+;; TODO: Don't let player climb tree (or up) if the bird is not in the nest
 (defobject :tree
            :names ["sycamore" "tree"]
            :short-description "tall sycamore tree"
@@ -32,6 +33,7 @@
            :adjectives ["tall" "stout" "proud"]
            :props #{:scenery})
 
+;; TODO: When player puts nest (containing the bird) on branch, the player wins
 (defobject :branch
            :names ["bough" "branch"]
            :short-description "wide firm bough"
