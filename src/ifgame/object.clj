@@ -39,7 +39,7 @@
               nil)))
         (keys @objects)))
 
-(declare container?)
+(declare container? scenery?)
 
 (defn describe
   "Returns the description of an object. If verbosity is :full returns a full description, otherwise returns the short
@@ -48,7 +48,7 @@
   (let [object (get-object object-key)
         short-desc (:short-description object)
         full-desc (:full-description object)]
-    (if (contains? (:props object) :scenery)
+    (if (scenery? object)
       nil
       (cond
         (or (not (container? object-key))
@@ -83,6 +83,12 @@
 (defn container? [obj-key]
   (let [obj (get-object obj-key)]
     (contains? (:props obj) :container)))
+
+(defn scenery? [obj-or-key]
+  (let [obj (if (keyword? obj-or-key)
+              (get-object obj-or-key)
+              obj-or-key)]
+    (contains? (:props obj) :scenery)))
 
 (defn add-contents [container-key obj-key]
   (let [container-obj (get-object container-key)
