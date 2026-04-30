@@ -21,11 +21,10 @@
             location (:location @game)]
         (if object-keys
           (doseq [key object-keys]
-            (let [obj (object/get-object key)
-                  name (first (:names obj))]
+            (let [obj (object/get-object key)]
               (game/remove-from-inventory game key)
               (room/add-object location key)
-              (println (str name ":") "Dropped.")))
+              (println (str (:name obj) ":") "Dropped.")))
           (println "You're not carrying anything.")))
 
       (not (game/in-inventory? game obj-key))
@@ -47,15 +46,10 @@
 (defn- examine [ast _game]
   (let [noun (:do-word ast)
         object (:direct-object ast)]
-    (cond
-      (or (= noun "all") (= noun "everything"))
+    ;; For special objects, the objects handler needs to handle this action
+    (if (or (= noun "all") (= noun "everything"))
       (println "You can only examine things one at a time.")
-
-      (:full-description object)
-      (println (:full-description object))
-
-      :else
-      (println "You see nothing special about the" (str noun ".")))))
+      (println "You see nothing special about the" (str (:name object) ".")))))
 
 (action :examine
         ["x" "examine"]
@@ -114,12 +108,12 @@
                     (doseq [key object-keys]
                       (let [obj (object/get-object key)]
                         ;; TODO: Needs to be recursive to handle containers within containers
-                        (println "  A" (:short-description obj))
+                        (println "  A" (:name obj))
                         (when (and (object/container? key) (not-empty (:contents obj)))
-                          (println "  The" (:short-description obj) "contains:")
+                          (println "  The" (:name obj) "contains:")
                           (doseq [key (:contents obj)]
                             (let [o (object/get-object key)]
-                              (println "    A" (:short-description o))))))))
+                              (println "    A" (:name o))))))))
                   (println "You're not carrying anything."))
                 true)))
 
@@ -147,17 +141,17 @@
                   (take-object ast game))
                 (cond
                   (not (game/in-inventory? game do-key))
-                  (do (println "You're not carrying the" (:short-description do-obj))
+                  (do (println "You're not carrying the" (:name do-obj))
                       true)
 
                   (not (object/container? io-key))
-                  (do (println "You can't put anything in the" (:short-description io-obj))
+                  (do (println "You can't put anything in the" (:name io-obj))
                       true)
 
                   :else
                   (do (object/add-contents io-key do-key)
                       (game/remove-from-inventory game do-key)
-                      (println "You place the" (:short-description do-obj) "in the" (str (:short-description io-obj) "."))
+                      (println "You place the" (:name do-obj) "in the" (str (:name io-obj) "."))
                       true)))))
 
 (defn- verify-quit []
@@ -190,7 +184,7 @@
         (if (not (empty? object-keys))
           (doseq [key object-keys]
             (let [obj (object/get-object key)
-                  name (first (:names obj))]
+                  name (:name obj)]
               (if (object/takeable? key)
                 (do (game/add-to-inventory game key)
                     (room/remove-object location key)

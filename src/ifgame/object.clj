@@ -2,25 +2,27 @@
 
 (def ^:private objects (atom {}))
 
-;; TODO: Do we need an initial description for objects
 (defn object
   "Add an object to the game.
      id - a keyword for the object.
-     :names  - A vector of names that object can be referred to as.
-     short-description - A short description for the object. Used to describe in a room or inventory.
-     full-description - A full description of the object. Used when examining the object
+     name - Name or phrase for the object. Used to plug into sentences.
+     synonyms  - A vector of names that object can be referred to as. (used by parser)
+     :desc - A short description for the object. Used to describe in a room or inventory.
+     :first-desc - A description for the object when it is first seen.
      :contents - the object keys inside this object (must have container property)
      :props - set of properties for the object.
      :fn - the object's action handler."
-  [id & {:keys [names short-description full-description adjectives contents props fn]
-         :or {full-description nil
-              adjectives []
-              contents #{}
-              props #{}
-              fn nil}}]
-  (swap! objects assoc id {:short-description short-description
-                           :full-description full-description
-                           :names names
+  [id name synonyms & {:keys [desc first-desc adjectives contents props fn]
+                       :or {desc (str "There is a " name " here.")
+                            first-desc nil
+                            adjectives []
+                            contents #{}
+                            props #{}
+                            fn nil}}]
+  (swap! objects assoc id {:name name
+                           :synonyms synonyms
+                           :first-desc first-desc
+                           :desc desc
                            :adjectives adjectives
                            :contents contents
                            :props props
@@ -34,7 +36,7 @@
   [name]
   (some (fn [key]
           (let [obj (get-object key)]
-            (if (some #{name} (:names obj))
+            (if (some #{name} (:synonyms obj))
               key
               nil)))
         (keys @objects)))
@@ -46,16 +48,16 @@
   one."
   [object-key verbosity]
   (let [object (get-object object-key)
-        short-desc (:short-description object)
-        full-desc (:full-description object)]
+        short-desc (:desc object)
+        full-desc (:first-desc object)]
     (cond
       (scenery? object)
       nil
 
       (or (not (container? object-key)) (empty? (:contents object)))
       (if (= verbosity :full)
-        (str "There is a " full-desc " here.")
-        (str "There is a " short-desc " here."))
+        (:first-desc object)
+        (:desc object))
 
       :else
       (str "There is a "
@@ -65,13 +67,13 @@
            \newline
            (reduce (fn [result obj-key]
                      (let [obj (get-object obj-key)]
-                       (str result "  A " (:short-description obj))))
+                       (str result "  A " (:desc obj))))
                    ""
                    (:contents object))))))
 
 (defn get-names [object-key]
   (let [obj (get-object object-key)]
-    (:names obj)))
+    (:synonyms obj)))
 
 (defn get-adjectives [object-key]
   (let [obj (get-object object-key)]

@@ -93,6 +93,7 @@
         names (mapcat object/get-names object-keys)
         adjs (mapcat object/get-adjectives object-keys)]
     ;(println "vocab object-keys:" object-keys)
+    ;(println "vocab names:" names)
     (-> {}
         (into {:nouns (set (concat (directions) names inv-names #{"all" "everything"}))})
         (into {:adjectives (set adjs)}))))
@@ -113,7 +114,7 @@
 ;; TODO: Actions could define what they need (do, io, etc.) and we could validate that
 
 (defn- transform-ast [ast]
-  (println "transform-ast:" ast)
+  ;(println "transform-ast:" ast)
   (let [verb (:verb ast)
         action (action/get-action-by-word verb)
         error (or (get-in ast [:direct-object :error])
