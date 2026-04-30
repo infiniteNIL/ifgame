@@ -3,7 +3,7 @@
 (def ^:private objects (atom {}))
 
 ;; TODO: Do we need an initial description for objects
-(defn defobject
+(defn object
   "Add an object to the game.
      id - a keyword for the object.
      :names  - A vector of names that object can be referred to as.
