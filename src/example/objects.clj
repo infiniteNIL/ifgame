@@ -1,6 +1,7 @@
 (ns example.objects
   (:require [ifgame.action :as action]
-            [ifgame.object :refer [object]]))
+            [ifgame.game :as game]
+            [ifgame.object :as object :refer [object]]))
 
 ;; TODO: Shouldn't be able to climb tree with more than 1 item (i.e. bird needs to be in nest)
 ;; TODO: Win game by putting nest on branch
@@ -34,7 +35,8 @@
                 false)))
 
 (defn- nest-contains-bird? [_game]
-  false)
+  (let [nest (object/get-object :nest)]
+    (object/object-contains? nest :bird)))
 
 ;; TODO: Don't let player climb tree (or up) if the bird is not in the nest
 (object :tree
@@ -45,8 +47,11 @@
         :adjectives ["tall" "stout" "proud"]
         :props #{:scenery}
         :fn (fn [ast game]
+              (println "tree-action:" ast)
               (cond
                 (and (action/is-action? (:action ast) :climb)
+                     (game/in-inventory? game :bird)
+                     (game/in-inventory? game :nest)
                      (not (nest-contains-bird? game)))
                 (do (println "You start to climb the tree, but then realize you can't climb with both your hands full.")
                     true)

@@ -96,3 +96,6 @@
   (let [container-obj (get-object container-key)
         old-contents (:contents container-obj)]
     (swap! objects assoc-in [container-key :contents] (conj old-contents obj-key))))
+
+(defn object-contains? [obj obj-key]
+  (some #{obj-key} (:contents obj)))
