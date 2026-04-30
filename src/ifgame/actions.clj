@@ -9,23 +9,26 @@
   (let [noun (:do-word ast)
         obj-key (:do-key ast)]
     (cond
-      (or (= noun "all") (= noun "everything"))   (let [object-keys (:inventory @game)
-                                                        location (:location @game)]
-                                                    (if object-keys
-                                                      (doseq [key object-keys]
-                                                        (let [obj (object/get-object key)
-                                                              name (first (:names obj))]
-                                                          (game/remove-from-inventory game key)
-                                                          (room/add-object location key)
-                                                          (println (str name ":") "Dropped.")))
-                                                      (println "You're not carrying anything.")))
+      (or (= noun "all") (= noun "everything"))
+      (let [object-keys (:inventory @game)
+            location (:location @game)]
+        (if object-keys
+          (doseq [key object-keys]
+            (let [obj (object/get-object key)
+                  name (first (:names obj))]
+              (game/remove-from-inventory game key)
+              (room/add-object location key)
+              (println (str name ":") "Dropped.")))
+          (println "You're not carrying anything.")))
 
-      (not (game/in-inventory? game obj-key))     (println "You're not carrying the" (str noun "."))
+      (not (game/in-inventory? game obj-key))
+      (println "You're not carrying the" (str noun "."))
 
-      :else                                       (let [location (:location @game)]
-                                                    (game/remove-from-inventory game obj-key)
-                                                    (room/add-object location obj-key)
-                                                    (println "Dropped.")))))
+      :else
+      (let [location (:location @game)]
+        (game/remove-from-inventory game obj-key)
+        (room/add-object location obj-key)
+        (println "Dropped.")))))
 
 (defaction :drop
            ["drop" "put down"]
@@ -38,12 +41,14 @@
   (let [noun (:do-word ast)
         object (:direct-object ast)]
     (cond
-      (or (= noun "all")
-          (= noun "everything"))  (println "You can only examine things one at a time.")
+      (or (= noun "all") (= noun "everything"))
+      (println "You can only examine things one at a time.")
 
-      (:full-description object)  (println (:full-description object))
+      (:full-description object)
+      (println (:full-description object))
 
-      :else                       (println "You see nothing special about the" (str noun ".")))))
+      :else
+      (println "You see nothing special about the" (str noun ".")))))
 
 (defaction :examine
            ["x" "examine"]
@@ -134,16 +139,19 @@
                    (when (not (game/in-inventory? game do-key))
                      (take-object ast game))
                    (cond
-                     (not (game/in-inventory? game do-key))    (do (println "You're not carrying the" (:short-description do-obj))
-                                                                   true)
+                     (not (game/in-inventory? game do-key))
+                     (do (println "You're not carrying the" (:short-description do-obj))
+                         true)
 
-                     (not (object/container? io-key))          (do (println "You can't put anything in the" (:short-description io-obj))
-                                                                   true)
+                     (not (object/container? io-key))
+                     (do (println "You can't put anything in the" (:short-description io-obj))
+                         true)
 
-                     :else                                     (do (object/add-contents io-key do-key)
-                                                                   (game/remove-from-inventory game do-key)
-                                                                   (println "You place the" (:short-description do-obj) "in the" (str (:short-description io-obj) "."))
-                                                                   true)))))
+                     :else
+                     (do (object/add-contents io-key do-key)
+                         (game/remove-from-inventory game do-key)
+                         (println "You place the" (:short-description do-obj) "in the" (str (:short-description io-obj) "."))
+                         true)))))
 
 (defn- verify-quit []
   (print "Are you sure? (Y/n) ")
@@ -166,27 +174,31 @@
         obj-key (:do-key ast)]
     ;; TODO: Should be able to get objects in containers
     (cond
-      (game/in-inventory? game obj-key)             (println "You're already carrying that!")
+      (game/in-inventory? game obj-key)
+      (println "You're already carrying that!")
 
-      (or (= noun "all") (= noun "everything"))     (let [location (:location @game)
-                                                          object-keys (room/objects location)]
-                                                      (if (not (empty? object-keys))
-                                                        (doseq [key object-keys]
-                                                          (let [obj (object/get-object key)
-                                                                name (first (:names obj))]
-                                                            (if (object/takeable? key)
-                                                              (do (game/add-to-inventory game key)
-                                                                  (room/remove-object location key)
-                                                                  (println (str name ":") "Taken."))
-                                                              (println (str name ":") "You can't take that."))))
-                                                        (println "There is nothing here you can take.")))
+      (or (= noun "all") (= noun "everything"))
+      (let [location (:location @game)
+            object-keys (room/objects location)]
+        (if (not (empty? object-keys))
+          (doseq [key object-keys]
+            (let [obj (object/get-object key)
+                  name (first (:names obj))]
+              (if (object/takeable? key)
+                (do (game/add-to-inventory game key)
+                    (room/remove-object location key)
+                    (println (str name ":") "Taken."))
+                (println (str name ":") "You can't take that."))))
+          (println "There is nothing here you can take.")))
 
-      (object/takeable? obj-key)                    (let [location (:location @game)]
-                                                      (game/add-to-inventory game obj-key)
-                                                      (room/remove-object location obj-key)
-                                                      (println "Taken."))
+      (object/takeable? obj-key)
+      (let [location (:location @game)]
+        (game/add-to-inventory game obj-key)
+        (room/remove-object location obj-key)
+        (println "Taken."))
 
-      :else                                         (println "You can't take the" (str noun ".")))))
+      :else
+      (println "You can't take the" (str noun ".")))))
 
 (defaction :take
            ["take" "get" "pick up"]

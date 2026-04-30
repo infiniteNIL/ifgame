@@ -113,39 +113,43 @@
 ;; TODO: Actions could define what they need (do, io, etc.) and we could validate that
 
 (defn- transform-ast [ast]
-  ;(println "transform-ast:" ast)
+  (println "transform-ast:" ast)
   (let [verb (:verb ast)
         action (action/get-action-by-word verb)
         error (or (get-in ast [:direct-object :error])
                   (get-in ast [:indirect-object :error]))]
     (cond
-      (nil? action)               (if (direction? verb)
-                                    {:action (action/get-action-by-word "go")
-                                     :direction (normalize-direction verb)}
-                                    {:verb verb
-                                     :error :unknown-action})
+      (nil? action)
+      (if (direction? verb)
+        {:action (action/get-action-by-word "go")
+         :direction (normalize-direction verb)}
+        {:verb verb
+         :error :unknown-action})
 
-      (= verb "go")               (let [dir (get-in ast [:direct-object :noun])]
-                                    {:action action
-                                     :direction (normalize-direction dir)})
+      (= verb "go")
+      (let [dir (get-in ast [:direct-object :noun])]
+        {:action action
+         :direction (normalize-direction dir)})
 
       ;; check for any errors (i.e. unknown nouns)
-      (= error :no-known-noun)    (let [noun (first (or (get-in ast [:direct-object :words])
-                                                        (get-in ast [:indirect-object :words])))]
-                                    {:noun noun
-                                     :error error})
+      (= error :no-known-noun)
+      (let [noun (first (or (get-in ast [:direct-object :words])
+                            (get-in ast [:indirect-object :words])))]
+        {:noun noun
+         :error error})
 
-      :else                       (let [do-word (get-in ast [:direct-object :noun])
-                                        do-key (object/get-key do-word)
-                                        io-word (get-in ast [:indirect-object :noun])
-                                        io-key (object/get-key io-word)]
-                                    {:action action
-                                     :do-key do-key
-                                     :do-word do-word
-                                     :direct-object (object/get-object do-key)
-                                     :io-key io-key
-                                     :io-word io-word
-                                     :indirect-object (object/get-object io-key)}))))
+      :else
+      (let [do-word (get-in ast [:direct-object :noun])
+            do-key (object/get-key do-word)
+            io-word (get-in ast [:indirect-object :noun])
+            io-key (object/get-key io-word)]
+        {:action action
+         :do-key do-key
+         :do-word do-word
+         :direct-object (object/get-object do-key)
+         :io-key io-key
+         :io-word io-word
+         :indirect-object (object/get-object io-key)}))))
 
 (defn parse [str game]
   (let [vocab (build-vocab game)]

@@ -45,8 +45,17 @@
     ;; BUG: When multiple objects in play (like "get all"), every object involved needs to be given a chance
     ;;      to handle the action
     (cond
-      (handle-errors ast game)                          true
-      (handle-object-action :indirect-object ast game)  true
-      (handle-object-action :direct-object ast game)    true
-      action-fn                                         (action-fn ast game)
-      :else                                             false)))
+      (handle-errors ast game)
+      true
+
+      (handle-object-action :indirect-object ast game)
+      true
+
+      (handle-object-action :direct-object ast game)
+      true
+
+      action-fn
+      (action-fn ast game)
+
+      :else
+      false)))
