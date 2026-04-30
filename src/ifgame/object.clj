@@ -60,14 +60,12 @@
         (:desc object))
 
       :else
-      (str "There is a "
-           (if (= verbosity :full) full-desc short-desc)
-           " here."
-           " The " short-desc " contains:"
+      (str (if (= verbosity :full) full-desc short-desc)
+           " The " (:name object) " contains:"
            \newline
            (reduce (fn [result obj-key]
                      (let [obj (get-object obj-key)]
-                       (str result "  A " (:desc obj))))
+                       (str result "  A " (:name obj))))
                    ""
                    (:contents object))))))
 
