@@ -5,7 +5,7 @@
 (def ^:private actions (atom {}))
 
 ;; TODO: Need more specs on forms
-(defn defaction
+(defn action
   "Define an action for the game.
      id - the keyword for the action in actions
      synonyms - vector of words the action goes by.
@@ -38,5 +38,5 @@
   (= action (get-action-by-key key)))
 
 (comment
-  (defaction "take"
-             :synonyms ["get" "pick up"]))
+  (action "take"
+          :synonyms ["get" "pick up"]))
