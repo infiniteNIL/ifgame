@@ -4,7 +4,7 @@
 
 (def ^:private rooms (atom {}))
 
-(defn defroom
+(defn room
   "Add a room to the game.
      id - a keyword for the room.
      name - the name of the room. Display first in room descriptions.
