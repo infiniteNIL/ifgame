@@ -1,5 +1,5 @@
 (ns ifgame.room
-  "Provides functions for dealing a room"
+  "Provides functions for dealing with a room"
   (:require [ifgame.object :as object]))
 
 (def ^:private rooms (atom {}))
@@ -49,22 +49,32 @@
                    northwest northeast southwest southeast
                    has])
 
-(defn get-room [loc-key]
+(defn get-room
+  "Get a room given its key"
+  [loc-key]
   (loc-key @rooms))
 
-(defn full-description [loc-key]
+(defn full-description
+  "Get the full description of a room given its key"
+  [loc-key]
   (let [room (get-room loc-key)]
     (str (:name room) \newline (:desc room))))
 
-(defn short-description [loc-key]
+(defn short-description
+  "Get the short description of a room given its key."
+  [loc-key]
   (let [room (get-room loc-key)]
     (:name room)))
 
-(defn first-visit? [loc-key]
+(defn first-visit?
+  "Given a room key, returns if this is the first time the player has been in the room."
+  [loc-key]
   (let [room (get-room loc-key)]
     (= 1 (:visit-count room 0))))
 
-(defn describe-objects [loc-key]
+(defn describe-objects
+  "Returns a string describing all the objects in a room, given its key."
+  [loc-key]
   (let [room (get-room loc-key)
         obj-keys (:contents room)]
     (when-not (empty? obj-keys)
@@ -78,9 +88,10 @@
                    obj-keys)))))
 
 (defn describe
-  "Describe a room and it's contents. Verbosity is :full for the full description, otherwise a short description is
+  "Describe a room and its contents, given its key. Verbosity is :full for the full description, otherwise a short description is
   returned."
   [loc-key verbosity]
+  ;; TODO: Need to handle darkness (when room doesn't have light prop)
   (let [room-desc (if (= verbosity :full)
                     (full-description loc-key)
                     (short-description loc-key))
@@ -89,20 +100,28 @@
       (str room-desc \newline object-descriptions)
       room-desc)))
 
-(defn visit [loc-key]
+(defn visit
+  "Record that a room has been visited by the player, given its key."
+  [loc-key]
   (let [room (get-room loc-key)
         count (:visit-count room 0)]
     (swap! rooms assoc-in [loc-key :visit-count] (inc count))))
 
 
-(defn contents [loc-key]
+(defn contents
+  "Return the contents of a room, given its key."
+  [loc-key]
   (let [room (get-room loc-key)]
     (:contents room)))
 
-(defn add-object [loc-key object-key]
+(defn add-object
+  "Add an object to a room, given the room's key and the object's key."
+  [loc-key object-key]
   (let [new-objects (conj (contents loc-key) object-key)]
     (swap! rooms assoc-in [loc-key :contents] new-objects)))
 
-(defn remove-object [loc-key object-key]
+(defn remove-object
+  "Remove an object from a room, given the room's key and the object's key."
+  [loc-key object-key]
   (let [new-objects (remove #{object-key} (contents loc-key))]
     (swap! rooms assoc-in [loc-key :contents] new-objects)))
