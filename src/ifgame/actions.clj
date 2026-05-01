@@ -43,6 +43,13 @@
               (drop-object ast game)
               true))
 
+(action :enter
+        ["enter" "in" "go in"]
+        :requires #{}
+        :fn (fn [_ast _game]
+              (println "That's not something you can enter.")
+              true))
+
 (defn- examine [ast _game]
   (let [noun (:do-word ast)
         object (:direct-object ast)]
