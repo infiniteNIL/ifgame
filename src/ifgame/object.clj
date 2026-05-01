@@ -12,11 +12,12 @@
      :contents - the object keys inside this object (must have container property)
      :props - set of properties for the object.
      :fn - the object's action handler."
-  [id name synonyms & {:keys [desc first-desc adjectives contents props fn]
+  [id name synonyms & {:keys [desc first-desc adjectives contents supports props fn]
                        :or {desc (str "There is a " name " here.")
                             first-desc nil
                             adjectives []
                             contents #{}
+                            supports #{}
                             props #{}
                             fn nil}}]
   (swap! objects assoc id {:type :object
@@ -26,6 +27,7 @@
                            :desc desc
                            :adjectives adjectives
                            :contents contents
+                           :supports supports
                            :props props
                            :fn fn}))
 
@@ -44,33 +46,56 @@
               nil)))
         (keys @objects)))
 
-(declare container? scenery?)
+(declare container? scenery? supporter?)
 
-(defn describe
-  "Returns the description of an object given its key. If verbosity is :full returns a full description, otherwise returns the short
-  one."
-  [object-key verbosity]
-  (let [object (get-object object-key)
-        short-desc (:desc object)
-        full-desc (:first-desc object)]
-    (cond
-      (scenery? object)
-      nil
-
-      (or (not (container? object-key)) (empty? (:contents object)))
-      (if (= verbosity :full)
-        (:first-desc object)
-        (:desc object))
-
-      :else
-      (str (if (= verbosity :full) full-desc short-desc)
-           " The " (:name object) " contains:"
-           \newline
+(defn- describe-contents
+  "Given an object key, returns a string describing the contents of the object.
+  If the object is not a container or is empty, returns nil."
+  [obj-key]
+  (let [obj (get-object obj-key)]
+    (if (and (container? obj-key) (not-empty (:contents obj)))
+      (str \newline
+           "The " (:name obj) " contains:" \newline
            (reduce (fn [result obj-key]
                      (let [obj (get-object obj-key)]
                        (str result "  A " (:name obj))))
                    ""
-                   (:contents object))))))
+                   (:contents obj)))
+      nil)))
+
+(defn- describe-supports
+  "Given an object key, returns a string describing the supports of the object.
+  If the object is not a supporter or is empty, returns nil."
+  [obj-key]
+  (let [obj (get-object obj-key)]
+    (if (and (supporter? obj-key) (not-empty (:supports obj)))
+      (str \newline
+           "On top of the " (:name obj) " is:" \newline
+           (reduce (fn [result obj-key]
+                     (let [obj (get-object obj-key)]
+                       (str result "  A " (:name obj))))
+                   ""
+                   (:supports obj)))
+      nil)))
+
+(defn describe
+  "Returns the description of an object given its key. If verbosity is :full returns a full description, otherwise returns the short
+  description."
+  [object-key verbosity]
+  (let [object (get-object object-key)
+        short-desc (:desc object)
+        full-desc (:first-desc object)
+        first-line (if (= verbosity :full) full-desc short-desc)
+        contents-desc (describe-contents object-key)
+        supports-desc (describe-supports object-key)]
+    ;(println "object-key:" object-key)
+    ;(println "first-line:" first-line)
+    ;(println "contents-desc:" contents-desc)
+    ;(println "supports-desc:" supports-desc)
+    (if (scenery? object)
+      ;; Scenery objects don't need initial desc
+      (str contents-desc supports-desc)
+      (str first-line contents-desc supports-desc))))
 
 (defn get-names
   "Get the names an object goes by given its key."
@@ -84,26 +109,34 @@
   (let [obj (get-object object-key)]
     (:adjectives obj)))
 
+(defn- has-prop?
+  "Returns whether an object has a property or not, given the object or its key, and the property."
+  [obj-or-key property]
+  (let [obj (if (keyword? obj-or-key)
+              (get-object obj-or-key)
+              obj-or-key)]
+    (contains? (:props obj) property)))
+
 (defn takeable?
   "Returns whether an object is takeable given its key."
   [obj-key]
-  (let [obj (get-object obj-key)]
-    (not (or (contains? (:props obj) :scenery)
-             (contains? (:props obj) :static)))))
+  (not (or (has-prop? obj-key :scenery)
+           (has-prop? obj-key :supporter))))
 
 (defn container?
   "Returns whether an object is a container given its key."
   [obj-key]
-  (let [obj (get-object obj-key)]
-    (contains? (:props obj) :container)))
+  (has-prop? obj-key :container))
+
+(defn supporter?
+  "Returns whether an object is a supporter given its key."
+  [obj-key]
+  (has-prop? obj-key :supporter))
 
 (defn scenery?
   "Returns whether an object is scenery or not. You can pass in the object itself or its key."
   [obj-or-key]
-  (let [obj (if (keyword? obj-or-key)
-              (get-object obj-or-key)
-              obj-or-key)]
-    (contains? (:props obj) :scenery)))
+  (has-prop? obj-or-key :scenery))
 
 (defn add-contents
   "Adds an object to a container, given the container and object keys."
@@ -116,3 +149,17 @@
   "Returns whether an object contains another object, given their keys."
   [obj obj-key]
   (some #{obj-key} (:contents obj)))
+
+(defn add-support
+  "Adds an object to a supporting object, given the container and object keys."
+  [supporter-key obj-key]
+  (let [supporter-obj (get-object supporter-key)
+        old-supports (:supports supporter-obj)]
+    (assert (has-prop? supporter-obj :supporter))
+    (swap! objects assoc-in [supporter-key :supports] (conj old-supports obj-key))))
+
+(defn object-support?
+  "Returns whether an object supports another object, given their keys."
+  [obj obj-key]
+  (assert (has-prop? obj :supporter))
+  (some #{obj-key} (:supports obj)))

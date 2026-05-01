@@ -116,6 +116,11 @@
                       (let [obj (object/get-object key)]
                         ;; TODO: Needs to be recursive to handle containers within containers
                         (println "  A" (:name obj))
+                        (when (and (object/supporter? key) (not-empty (:supports obj)))
+                          (println "  Sitting on the" (:name obj) "is:")
+                          (doseq [key (:supports obj)]
+                            (let [o (object/get-object key)]
+                              (println "    A" (:name o)))))
                         (when (and (object/container? key) (not-empty (:contents obj)))
                           (println "  The" (:name obj) "contains:")
                           (doseq [key (:contents obj)]
@@ -140,15 +145,14 @@
 
 (declare take-object)
 
-;; TODO: put bird in nest and put nest on branch are different actions (different prepositions)
 (action :place
         ["place" "put"]
         ;; TODO: Parser should enforce this
         :requires #{:direct-object :preposition :indirect-object}
         :fn (fn [ast game]
-              ;(println "place ast:" ast)
               (let [do-key (:do-key ast)
                     do-obj (object/get-object do-key)
+                    prep (:preposition ast)
                     io-key (:io-key ast)
                     io-obj (object/get-object io-key)]
                 (when (not (game/in-inventory? game do-key))
@@ -158,15 +162,26 @@
                   (do (println "You're not carrying the" (:name do-obj))
                       true)
 
-                  (not (object/container? io-key))
-                  (do (println "You can't put anything in the" (:name io-obj))
-                      true)
+                  (= prep "in")
+                  (if (object/container? io-key)
+                    (do (object/add-contents io-key do-key)
+                        (game/remove-from-inventory game do-key)
+                        (println "You place the" (:name do-obj) "in the" (str (:name io-obj) "."))
+                        true)
+                    (do (println "You can't put anything in the" (:name io-obj))
+                        true))
+
+                  (= prep "on")
+                  (if (object/supporter? io-key)
+                    (do (object/add-support io-key do-key)
+                        (game/remove-from-inventory game do-key)
+                        (println "You place the" (:name do-obj) "on the" (str (:name io-obj) "."))
+                        true)
+                    (do (println "You can't put anything on the" (:name io-obj))
+                        true))
 
                   :else
-                  (do (object/add-contents io-key do-key)
-                      (game/remove-from-inventory game do-key)
-                      (println "You place the" (:name do-obj) "in the" (str (:name io-obj) "."))
-                      true)))))
+                  false))))
 
 (defn- verify-quit []
   (print "Are you sure? (Y/n) ")

@@ -148,6 +148,7 @@
          :do-key do-key
          :do-word do-word
          :direct-object (object/get-object do-key)
+         :preposition (:preposition ast)
          :io-key io-key
          :io-word io-word
          :indirect-object (object/get-object io-key)}))))

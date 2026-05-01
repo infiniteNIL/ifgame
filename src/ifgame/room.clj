@@ -1,6 +1,7 @@
 (ns ifgame.room
   "Provides functions for dealing with a room"
-  (:require [ifgame.object :as object]))
+  (:require [clojure.string :as str]
+            [ifgame.object :as object]))
 
 (def ^:private rooms (atom {}))
 
@@ -81,9 +82,9 @@
       (str (reduce (fn [description obj-key]
                      (let [desc (object/describe obj-key :short)]
                        (cond
-                         (nil? desc)          description
-                         (empty? description) desc
-                         :else                (str description \newline desc))))
+                         (str/blank? desc)        description
+                         (str/blank? description) desc
+                         :else                    (str description \newline desc))))
                    ""
                    obj-keys)))))
 
