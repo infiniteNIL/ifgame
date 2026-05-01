@@ -11,38 +11,38 @@
      desc - the full description of the room.
      :north, :south, :east, :west, :up, :down, :northwest, :northeast :southwest - id of rooms in the given direction.
      :props - set of properties for the room.
-     :objects - set of ids to objects in the room.
+     :contents - set of ids to objects in the room.
      :fn - the rooms action handler."
-  [id name desc & {:keys [north south east west up down northwest northeast southwest southeast props objects fn]
-                   :or {north nil
-                        south nil
-                        east nil
-                        west nil
-                        up nil
-                        down nil
+  [id name desc & {:keys [north south east west up down northwest northeast southwest southeast props contents fn]
+                   :or {north     nil
+                        south     nil
+                        east      nil
+                        west      nil
+                        up        nil
+                        down      nil
                         northwest nil
                         northeast nil
                         southwest nil
                         southeast nil
-                        props #{}
-                        objects #{}
-                        fn nil}}]
-  (swap! rooms assoc id {:type :room
-                         :name name
-                         :desc desc
-                         :north north
-                         :south south
-                         :east east
-                         :west west
-                         :up up
-                         :down down
+                        props     #{}
+                        contents  #{}
+                        fn        nil}}]
+  (swap! rooms assoc id {:type      :room
+                         :name      name
+                         :desc      desc
+                         :north     north
+                         :south     south
+                         :east      east
+                         :west      west
+                         :up        up
+                         :down      down
                          :northwest northwest
                          :northeast northeast
                          :southwest southwest
                          :southeast southeast
-                         :props props
-                         :objects objects
-                         :fn fn}))
+                         :props     props
+                         :contents  contents
+                         :fn        fn}))
 
 #_(defrecord Room [name description
                    north south east west up down
@@ -66,7 +66,7 @@
 
 (defn describe-objects [loc-key]
   (let [room (get-room loc-key)
-        obj-keys (:objects room)]
+        obj-keys (:contents room)]
     (when-not (empty? obj-keys)
       (str (reduce (fn [description obj-key]
                      (let [desc (object/describe obj-key :short)]
@@ -97,12 +97,12 @@
 
 (defn objects [loc-key]
   (let [room (get-room loc-key)]
-    (:objects room)))
+    (:contents room)))
 
 (defn add-object [loc-key object-key]
   (let [new-objects (conj (objects loc-key) object-key)]
-    (swap! rooms assoc-in [loc-key :objects] new-objects)))
+    (swap! rooms assoc-in [loc-key :contents] new-objects)))
 
 (defn remove-object [loc-key object-key]
   (let [new-objects (remove #{object-key} (objects loc-key))]
-    (swap! rooms assoc-in [loc-key :objects] new-objects)))
+    (swap! rooms assoc-in [loc-key :contents] new-objects)))

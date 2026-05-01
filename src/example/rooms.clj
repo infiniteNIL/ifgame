@@ -13,7 +13,7 @@
       :west :before-cottage
       :northeast :clearing
       :props #{:light}
-      :objects [:bird])
+      :contents [:bird])
 
 (room :clearing
       "A forest clearing"
@@ -21,11 +21,11 @@
       :southwest :forest
       :up :top-of-tree
       :props #{:light}
-      :objects [:nest :tree])
+      :contents [:nest :tree])
 
 (room :top-of-tree
       "At the top of the tree"
       "You cling precariously to the trunk."
       :down :clearing
       :props #{:light}
-      :objects [:branch])
+      :contents [:branch])
