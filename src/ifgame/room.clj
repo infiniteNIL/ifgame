@@ -95,14 +95,14 @@
     (swap! rooms assoc-in [loc-key :visit-count] (inc count))))
 
 
-(defn objects [loc-key]
+(defn contents [loc-key]
   (let [room (get-room loc-key)]
     (:contents room)))
 
 (defn add-object [loc-key object-key]
-  (let [new-objects (conj (objects loc-key) object-key)]
+  (let [new-objects (conj (contents loc-key) object-key)]
     (swap! rooms assoc-in [loc-key :contents] new-objects)))
 
 (defn remove-object [loc-key object-key]
-  (let [new-objects (remove #{object-key} (objects loc-key))]
+  (let [new-objects (remove #{object-key} (contents loc-key))]
     (swap! rooms assoc-in [loc-key :contents] new-objects)))
