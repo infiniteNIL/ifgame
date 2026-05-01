@@ -3,6 +3,26 @@
             [ifgame.game :as game]
             [ifgame.object :as object :refer [object]]))
 
+(object :cottage
+        "tiny cottage"
+        ["cottage" "home" "house" "hut" "shed" "hovel"]
+        ;:desc "It's small and simple, but you're very happy here."
+        :props #{:scenery}
+        :fn (fn [ast _game]
+              (cond
+                (action/is-action? (:action ast) :enter)
+                (do
+                  (println "It's such a lovely day -- much too nice to go inside.")
+                  true)
+
+                (action/is-action? (:action ast) :examine)
+                (do
+                  (println "It's small and simple, but you're very happy here.")
+                  true)
+
+                :else
+                false)))
+
 ;; TODO: Shouldn't be able to climb tree with more than 1 item (i.e. bird needs to be in nest)
 ;; TODO: Win game by putting nest on branch
 (object :bird
@@ -12,20 +32,20 @@
         ;:first-desc "Too young to fly, the nestling tweets helplessly."
         :adjectives ["baby"]
         :props #{}
-           :fn (fn [ast _game]
-                 (cond
-                   (action/is-action? (:action ast) :examine)
-                   (do
-                     (println "Too young to fly, the nestling tweets helplessly.")
-                     true)
+        :fn (fn [ast _game]
+              (cond
+                (action/is-action? (:action ast) :examine)
+                (do
+                  (println "Too young to fly, the nestling tweets helplessly.")
+                  true)
 
-                   (action/is-action? (:action ast) :listen)
-                   (do
-                     (println "It sounds scared and in need of assistance.")
-                     true)
+                (action/is-action? (:action ast) :listen)
+                (do
+                  (println "It sounds scared and in need of assistance.")
+                  true)
 
-                   :else
-                   false)))
+                :else
+                false)))
 
 (object :nest
         "bird's nest"

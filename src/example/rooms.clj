@@ -5,7 +5,8 @@
       "In front of a cottage"
       "You stand outside a cottage. The forest stretches east."
       :east :forest
-      :props #{:light})
+      :props #{:light}
+      :contents [:cottage])
 
 (room :forest
       "Deep in the forest"
