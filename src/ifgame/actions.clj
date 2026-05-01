@@ -117,6 +117,13 @@
                   (println "You're not carrying anything."))
                 true)))
 
+;; TODO: Need to handle "listen to"
+(action :listen
+        ["listen" "listen to"]
+        :requires #{}
+        :fn (fn [_ast game]
+              (println "You hear nothing unexpected.")
+              true))
 (action :look
         ["l" "look"]
         :requires #{}

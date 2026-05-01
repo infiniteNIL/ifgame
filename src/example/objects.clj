@@ -13,10 +13,18 @@
         :adjectives ["baby"]
         :props #{}
            :fn (fn [ast _game]
-                 (if (action/is-action? (:action ast) :examine)
+                 (cond
+                   (action/is-action? (:action ast) :examine)
                    (do
                      (println "Too young to fly, the nestling tweets helplessly.")
                      true)
+
+                   (action/is-action? (:action ast) :listen)
+                   (do
+                     (println "It sounds scared and in need of assistance.")
+                     true)
+
+                   :else
                    false)))
 
 (object :nest
