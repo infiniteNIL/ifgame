@@ -194,7 +194,7 @@
 
       (or (= noun "all") (= noun "everything"))
       (let [location (:location @game)
-            object-keys (room/objects location)]
+            object-keys (room/contents location)]
         (if (not (empty? object-keys))
           (doseq [key object-keys]
             (let [obj (object/get-object key)

@@ -71,9 +71,9 @@
       (str (reduce (fn [description obj-key]
                      (let [desc (object/describe obj-key :short)]
                        (cond
-                         (nil? desc)           description
-                         (empty? description)  desc
-                         :else                 (str description \newline desc))))
+                         (nil? desc)          description
+                         (empty? description) desc
+                         :else                (str description \newline desc))))
                    ""
                    obj-keys)))))
 

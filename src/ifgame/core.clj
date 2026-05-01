@@ -28,7 +28,7 @@
       (let [current-loc (:location @game)]
         (when (not= prev-loc current-loc)
           (println (room/describe current-loc (if (room/first-visit? current-loc) :full :short))))
-        (let [obj-keys (room/objects current-loc)]
+        (let [obj-keys (room/contents current-loc)]
           (-> (get-command)
               (parser/parse game)
               (cmd/process-cmd game))

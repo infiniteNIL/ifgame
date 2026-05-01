@@ -88,7 +88,7 @@
 
 (defn- build-vocab [game]
   (let [location (:location @game)
-        object-keys (room/objects location)
+        object-keys (room/contents location)
         inv-names (mapcat object/get-names (:inventory @game))
         names (mapcat object/get-names object-keys)
         adjs (mapcat object/get-adjectives object-keys)]
