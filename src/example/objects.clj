@@ -66,7 +66,6 @@
   (let [nest (object/get-object :nest)]
     (object/object-contains? nest :bird)))
 
-;; TODO: Don't let player climb tree (or up) if the bird is not in the nest
 (object :tree
         "sycamore tree"
         ["sycamore" "tree"]
@@ -83,6 +82,9 @@
                      (not (nest-contains-bird? game)))
                 (do (println "You start to climb the tree, but then realize you can't climb with both your hands full.")
                     true)
+
+                (action/is-action? (:action ast) :climb)
+                (game/move-player game :top-of-tree)
 
                 (action/is-action? (:action ast) :examine)
                 (do (println "Standing proud in the middle of the clearing, the stout tree looks easy to climb.")

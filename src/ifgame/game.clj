@@ -41,3 +41,6 @@
 
 (defn in-inventory? [game object-key]
   (some #{object-key} (:inventory @game)))
+
+(defn move-player [game dest-key]
+  (set-location game dest-key))
