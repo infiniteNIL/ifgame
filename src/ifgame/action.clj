@@ -19,7 +19,8 @@
   [id synonyms & {:keys [requires forms fn]
                   :or {requires #{}
                        forms #{}}}]
-  (swap! actions assoc id {:synonyms synonyms
+  (swap! actions assoc id {:type :action
+                           :synonyms synonyms
                            :requires requires
                            :forms forms
                            :fn fn}))

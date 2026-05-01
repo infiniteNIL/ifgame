@@ -27,7 +27,8 @@
                         props #{}
                         objects #{}
                         fn nil}}]
-  (swap! rooms assoc id {:name name
+  (swap! rooms assoc id {:type :room
+                         :name name
                          :desc desc
                          :north north
                          :south south

@@ -19,7 +19,8 @@
                             contents #{}
                             props #{}
                             fn nil}}]
-  (swap! objects assoc id {:name name
+  (swap! objects assoc id {:type :object
+                           :name name
                            :synonyms synonyms
                            :first-desc first-desc
                            :desc desc
