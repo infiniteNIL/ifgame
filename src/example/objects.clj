@@ -100,4 +100,13 @@
         :desc "There is a wide firm bough here."
         ;:first-desc "It's flat enough to support a small object."
         :adjectives ["wide" "firm" "flat"]
-        :props #{:static :supporter})
+        :props #{:static :supporter}
+        :fn (fn [ast _game]
+              (cond
+                (action/is-action? (:action ast) :examine)
+                (do
+                  (println "It's flat enough to support a small object.")
+                  true)
+
+                :else
+                false)))
