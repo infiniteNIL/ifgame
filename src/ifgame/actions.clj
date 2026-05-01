@@ -8,8 +8,8 @@
 (action :climb
         ["climb" "climb up"]
         :requires #{}
-        :fn (fn [ast game]
-              ;; TODO: Convert to up
+        :fn (fn [_ast _game]
+              (println "You can't climb that.")
               true))
 
 (defn- drop-object [ast game]
