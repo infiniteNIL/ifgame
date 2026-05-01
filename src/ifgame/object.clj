@@ -29,7 +29,9 @@
                            :props props
                            :fn fn}))
 
-(defn get-object [key]
+(defn get-object
+  "Get an object by its key."
+  [key]
   (get @objects key))
 
 (defn get-key
@@ -45,7 +47,7 @@
 (declare container? scenery?)
 
 (defn describe
-  "Returns the description of an object. If verbosity is :full returns a full description, otherwise returns the short
+  "Returns the description of an object given its key. If verbosity is :full returns a full description, otherwise returns the short
   one."
   [object-key verbosity]
   (let [object (get-object object-key)
@@ -70,33 +72,47 @@
                    ""
                    (:contents object))))))
 
-(defn get-names [object-key]
+(defn get-names
+  "Get the names an object goes by given its key."
+  [object-key]
   (let [obj (get-object object-key)]
     (:synonyms obj)))
 
-(defn get-adjectives [object-key]
+(defn get-adjectives
+  "Get the adjectives for an object given its key."
+  [object-key]
   (let [obj (get-object object-key)]
     (:adjectives obj)))
 
-(defn takeable? [obj-key]
+(defn takeable?
+  "Returns whether an object is takeable given its key."
+  [obj-key]
   (let [obj (get-object obj-key)]
     (not (or (contains? (:props obj) :scenery)
              (contains? (:props obj) :static)))))
 
-(defn container? [obj-key]
+(defn container?
+  "Returns whether an object is a container given its key."
+  [obj-key]
   (let [obj (get-object obj-key)]
     (contains? (:props obj) :container)))
 
-(defn scenery? [obj-or-key]
+(defn scenery?
+  "Returns whether an object is scenery or not. You can pass in the object itself or its key."
+  [obj-or-key]
   (let [obj (if (keyword? obj-or-key)
               (get-object obj-or-key)
               obj-or-key)]
     (contains? (:props obj) :scenery)))
 
-(defn add-contents [container-key obj-key]
+(defn add-contents
+  "Adds an object to a container, given the container and object keys."
+  [container-key obj-key]
   (let [container-obj (get-object container-key)
         old-contents (:contents container-obj)]
     (swap! objects assoc-in [container-key :contents] (conj old-contents obj-key))))
 
-(defn object-contains? [obj obj-key]
+(defn object-contains?
+  "Returns whether an object contains another object, given their keys."
+  [obj obj-key]
   (some #{obj-key} (:contents obj)))
