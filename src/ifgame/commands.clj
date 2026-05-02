@@ -34,16 +34,18 @@
 ;; 1) The indirect object if any
 ;; 2) The direct object if any
 ;; 3) The verb
-;; 4) The room the player is in
-;; 5) Daemons that have no relation to the player's action
+;; TODO: 4) The room the player is in
+;; TODO: 5) Daemons that have no relation to the player's action
 ;;
 ;; If one handles it, the process of command is finished. A function may do something
 ;; but not handle the command
 (defn process-cmd [ast game]
   (let [action (:action ast)
-        action-fn (:fn action)]
-    ;; BUG: When multiple objects in play (like "get all"), every object involved needs to be given a chance
-    ;;      to handle the action
+        action-fn (:fn action)
+        room-key (:location @game)
+        room (room/get-room room-key)]
+    ;; FIXME: When multiple objects in play (like "get all"), every object involved needs to be given a chance
+    ;;        to handle the action
     (cond
       (handle-errors ast game)
       true
@@ -55,7 +57,9 @@
       true
 
       action-fn
-      (action-fn ast game)
+      (do (action-fn ast game)
+          (when-let [room-fn (:fn room)]
+            (room-fn ast game)))
 
       :else
       false)))

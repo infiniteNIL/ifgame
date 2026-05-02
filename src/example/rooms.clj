@@ -1,5 +1,9 @@
 (ns example.rooms
-  (:require [ifgame.room :refer [room]]))
+      (:require [ifgame.action :as action]
+                [ifgame.game :as game]
+                [ifgame.object :as object]
+                [ifgame.room :refer [room]]
+                [example.objects :as ex]))
 
 (room :before-cottage
       "In front of a cottage"
@@ -24,9 +28,29 @@
       :props #{:light}
       :contents [:nest :tree])
 
+(defn nest-on-branch? [_game]
+   (let [branch (object/get-object :branch)]
+      (object/object-supports? branch :nest)))
+
 (room :top-of-tree
       "At the top of the tree"
       "You cling precariously to the trunk."
       :down :clearing
       :props #{:light}
-      :contents [:branch])
+      :contents [:branch]
+      :fn (fn [ast game]
+             (cond
+                (action/is-action? (:action ast) :drop)
+                ;; After object has been dropped
+                (let [obj (:direct-object ast)]
+                   ;; object already dropped. Need to move object from tree to clearing
+                   (game/move-object (:do-key ast) :top-of-tree :clearing)
+                   (println "The" (:name obj) "falls to the ground far below."))
+
+                (and (ex/nest-contains-bird? game) (nest-on-branch? game))
+                (do
+                  (println "Congratulations! You have won the game.")
+                  (game/won game))
+
+                :else
+                false)))

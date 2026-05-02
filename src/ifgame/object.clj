@@ -158,7 +158,7 @@
     (assert (has-prop? supporter-obj :supporter))
     (swap! objects assoc-in [supporter-key :supports] (conj old-supports obj-key))))
 
-(defn object-support?
+(defn object-supports?
   "Returns whether an object supports another object, given their keys."
   [obj obj-key]
   (assert (has-prop? obj :supporter))

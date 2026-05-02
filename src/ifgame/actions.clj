@@ -196,7 +196,7 @@
         :requires #{}
         :fn (fn [_ast game]
               (when (verify-quit)
-                (game/set-quit game))
+                (game/quit game))
               true))
 
 (defn- take-object [ast game]

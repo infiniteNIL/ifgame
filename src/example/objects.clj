@@ -6,7 +6,6 @@
 (object :cottage
         "tiny cottage"
         ["cottage" "home" "house" "hut" "shed" "hovel"]
-        ;:desc "It's small and simple, but you're very happy here."
         :props #{:scenery}
         :fn (fn [ast _game]
               (cond
@@ -26,8 +25,6 @@
 (object :bird
         "baby bird"
         ["bird" "nestling"]
-        ;:desc "baby bird"
-        ;:first-desc "Too young to fly, the nestling tweets helplessly."
         :adjectives ["baby"]
         :props #{}
         :fn (fn [ast _game]
@@ -48,8 +45,6 @@
 (object :nest
         "bird's nest"
         ["nest" "twigs" "moss"]
-        ;:desc "bird's nest"
-        ;:full-desc "The nest is carefully woven of twigs and moss."
         :adjectives ["bird"]
         :contains #{}
         :props #{:container :open}
@@ -60,15 +55,13 @@
                   true)
                 false)))
 
-(defn- nest-contains-bird? [_game]
+(defn nest-contains-bird? [_game]
   (let [nest (object/get-object :nest)]
-    (object/object-contains? nest :bird)))
+   (object/object-contains? nest :bird)))
 
 (object :tree
         "sycamore tree"
         ["sycamore" "tree"]
-        ;:desc "tall sycamore tree"
-        ;:first-desc "Standing proud in the middle of the clearing, the stout tree looks easy to climb."
         :adjectives ["tall" "stout" "proud"]
         :props #{:scenery}
         :fn (fn [ast game]
@@ -96,7 +89,6 @@
         "branch"
         ["bough" "branch"]
         :desc "There is a wide firm bough here."
-        ;:first-desc "It's flat enough to support a small object."
         :adjectives ["wide" "firm" "flat"]
         :props #{:static :supporter}
         :fn (fn [ast _game]

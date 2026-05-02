@@ -17,7 +17,6 @@
   (flush)
   (read-line))
 
-;; TODO: Need to handle darkness (when room doesn't have light prop)
 (defn start-game [game]
   (print-title game)
   (println)
