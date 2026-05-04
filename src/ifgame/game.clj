@@ -10,6 +10,7 @@
          :state :starting
          :turns 0
          :location start-location
+         :inventory #{}
          :health 100}))
 
 (defn set-location [game new-location]
@@ -38,13 +39,13 @@
 (defn won? [game]
   (= (:state @game) :won))
 
-(defn add-to-inventory [game-state object-key]
-  (let [new-inventory (conj (:inventory @game-state) object-key)]
-    (swap! game-state assoc :inventory new-inventory)))
+(defn add-to-inventory [game object-key]
+  (let [new-inventory (conj (:inventory @game) object-key)]
+    (swap! game assoc :inventory new-inventory)))
 
-(defn remove-from-inventory [game-state object-key]
-  (let [new-inventory (remove #{object-key} (:inventory @game-state))]
-    (swap! game-state assoc :inventory new-inventory)))
+(defn remove-from-inventory [game object-key]
+  (let [new-inventory (disj (:inventory @game) object-key)]
+    (swap! game assoc :inventory new-inventory)))
 
 (defn in-inventory? [game object-key]
   (some #{object-key} (:inventory @game)))

@@ -10,7 +10,7 @@
       "You stand outside a cottage. The forest stretches east."
       :east :forest
       :props #{:light}
-      :contents [:cottage])
+      :contents #{:cottage})
 
 (room :forest
       "Deep in the forest"
@@ -18,7 +18,7 @@
       :west :before-cottage
       :northeast :clearing
       :props #{:light}
-      :contents [:bird])
+      :contents #{:bird})
 
 (room :clearing
       "A forest clearing"
@@ -26,7 +26,7 @@
       :southwest :forest
       :up :top-of-tree
       :props #{:light}
-      :contents [:nest :tree])
+      :contents #{:nest :tree})
 
 (defn nest-on-branch? [_game]
    (let [branch (object/get-object :branch)]
@@ -37,7 +37,7 @@
       "You cling precariously to the trunk."
       :down :clearing
       :props #{:light}
-      :contents [:branch]
+      :contents #{:branch}
       :fn (fn [ast game]
              (cond
                 (action/is-action? (:action ast) :drop)

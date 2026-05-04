@@ -46,7 +46,6 @@
         "bird's nest"
         ["nest" "twigs" "moss"]
         :adjectives ["bird"]
-        :contains #{}
         :props #{:container :open}
         :fn (fn nest-handler [ast _game]
               (if (action/is-action? (:action ast) :examine)

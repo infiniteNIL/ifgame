@@ -124,5 +124,5 @@
 (defn remove-object
   "Remove an object from a room, given the room's key and the object's key."
   [loc-key object-key]
-  (let [new-objects (remove #{object-key} (contents loc-key))]
+  (let [new-objects (disj (contents loc-key) object-key)]
     (swap! rooms assoc-in [loc-key :contents] new-objects)))
