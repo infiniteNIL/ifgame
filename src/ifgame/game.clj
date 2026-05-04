@@ -59,7 +59,6 @@
     src-room-key is the key of the room to move object from.
     dst-room-key is the key of the room to move the object to."
   [obj-key src-room-key dest-room-key]
-  ;; TODO: Our room contents might be changing from set to vector when we add or remove objects
   (let [src-room (room/get-room src-room-key)]
     ;(assert (contains? (:contents src-room) obj-key) "The object needs to be in the src-room.")
     (room/remove-object src-room-key obj-key)
