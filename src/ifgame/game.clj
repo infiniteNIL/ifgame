@@ -49,7 +49,7 @@
     (swap! game assoc :inventory new-inventory)))
 
 (defn in-inventory? [game object-key]
-  (some #{object-key} (:inventory @game)))
+  (contains? (:inventory @game) object-key))
 
 (defn move-player [game dest-key]
   (set-location game dest-key))
