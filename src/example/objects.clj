@@ -64,7 +64,8 @@
         :adjectives ["tall" "stout" "proud"]
         :props #{:scenery}
         :fn (fn [ast game]
-              (println "tree-action:" ast)
+              ;; TODO: Need to handle up action like climb action
+              ;(println "tree-action:" ast)
               (cond
                 (and (action/is-action? (:action ast) :climb)
                      (game/in-inventory? game :bird)

@@ -34,11 +34,12 @@
 ;; 1) The indirect object if any
 ;; 2) The direct object if any
 ;; 3) The verb
-;; TODO: 4) The room the player is in
+;; 4) The room the player is in
 ;; TODO: 5) Daemons that have no relation to the player's action
 ;;
 ;; If one handles it, the process of command is finished. A function may do something
-;; but not handle the command
+;; but not handle the command. However, the room handler is always given a chance to handle the command
+;; regardless if another handler handled it.
 (defn process-cmd [ast game]
   (let [action (:action ast)
         action-fn (:fn action)
