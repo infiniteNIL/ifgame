@@ -15,11 +15,12 @@
 (defn- drop-object [ast game]
   (let [noun (:do-word ast)
         obj-key (:do-key ast)]
+    ;; TODO: Should be able to drop objects in containers or supporters you're carrying.
     (cond
       (or (= noun "all") (= noun "everything"))
       (let [object-keys (:inventory @game)
             location (:location @game)]
-        (if object-keys
+        (if (seq object-keys)
           (doseq [key object-keys]
             (let [obj (object/get-object key)]
               (game/remove-from-inventory game key)
