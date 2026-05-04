@@ -27,10 +27,11 @@
 
 (defn update-game [game]
   ; Update turns and state
-  (let [new-turns (inc (:turns @game))]
-    (swap! game assoc :turns new-turns)
-    (when (= (:state @game) :starting)
-      (swap! game assoc :state :in-progress))))
+  (let [new-turns (inc (:turns @game))
+        new-state (if (= (:state @game) :starting)
+                    :in-progress
+                    (:state @game))]
+    (swap! game assoc :turns new-turns :state new-state)))
 
 (defn over? [game]
   (or (= (:state @game) :quit)
