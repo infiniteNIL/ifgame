@@ -61,6 +61,6 @@
     dst-room-key is the key of the room to move the object to."
   [obj-key src-room-key dest-room-key]
   (let [src-room (room/get-room src-room-key)]
-    ;(assert (contains? (:contents src-room) obj-key) "The object needs to be in the src-room.")
+    (assert (contains? (:contents src-room) obj-key) "The object needs to be in the src-room.")
     (room/remove-object src-room-key obj-key)
     (room/add-object dest-room-key obj-key)))
