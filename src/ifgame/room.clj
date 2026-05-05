@@ -115,6 +115,21 @@
   (let [room (get-room loc-key)]
     (:contents room)))
 
+(defn complete-contents
+  "Get all the object keys of objects in the room, the room's containers, and the room's supporters."
+  [loc-key]
+  (let [room (get-room loc-key)
+        room-contents (:contents room)]
+    (concat room-contents
+            (mapcat (fn [obj-key]
+                      (let [obj (object/get-object obj-key)]
+                        (:contents obj)))
+                    room-contents)
+            (mapcat (fn [obj-key]
+                      (let [obj (object/get-object obj-key)]
+                        (:supports obj)))
+                    room-contents))))
+
 (defn add-object
   "Add an object to a room, given the room's key and the object's key."
   [loc-key object-key]

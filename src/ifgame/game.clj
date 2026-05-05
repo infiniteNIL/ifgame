@@ -1,5 +1,6 @@
 (ns ifgame.game
-  (:require [ifgame.room :as room]))
+  (:require [ifgame.object :as object]
+            [ifgame.room :as room]))
 
 ;(defrecord Game [title headline author state turns location health])
 
@@ -48,8 +49,22 @@
   (let [new-inventory (disj (:inventory @game) object-key)]
     (swap! game assoc :inventory new-inventory)))
 
+(defn complete-inventory
+  "Get all the keys of objects in the player's inventory, and those object's containees, and supporters."
+  [game]
+  (let [obj-keys (:inventory @game)]
+    (set (concat obj-keys
+                 (mapcat (fn [obj-key]
+                           (let [obj (object/get-object obj-key)]
+                             (:contents obj)))
+                         obj-keys)
+                 (mapcat (fn [obj-key]
+                           (let [obj (object/get-object obj-key)]
+                             (:supports obj)))
+                         obj-keys)))))
+
 (defn in-inventory? [game object-key]
-  (contains? (:inventory @game) object-key))
+  (contains? (complete-inventory game) object-key))
 
 (defn move-player [game dest-key]
   (set-location game dest-key))
@@ -64,3 +79,4 @@
     (assert (contains? (:contents src-room) obj-key) "The object needs to be in the src-room.")
     (room/remove-object src-room-key obj-key)
     (room/add-object dest-room-key obj-key)))
+

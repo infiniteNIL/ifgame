@@ -15,7 +15,6 @@
 (defn- drop-object [ast game]
   (let [noun (:do-word ast)
         obj-key (:do-key ast)]
-    ;; TODO: Should be able to drop objects in containers or supporters you're carrying.
     (cond
       (or (= noun "all") (= noun "everything"))
       (let [object-keys (:inventory @game)
@@ -23,6 +22,7 @@
         (if (seq object-keys)
           (doseq [key object-keys]
             (let [obj (object/get-object key)]
+              ;; TODO: Handle object in container or supporter in inventory
               (game/remove-from-inventory game key)
               (room/add-object location key)
               (println (str (:name obj) ":") "Dropped.")))
@@ -33,6 +33,7 @@
 
       :else
       (let [location (:location @game)]
+        ;; TODO: Handle object in container or supporter in inventory
         (game/remove-from-inventory game obj-key)
         (room/add-object location obj-key)
         (println "Dropped.")))))
@@ -134,7 +135,7 @@
 (action :listen
         ["listen" "listen to"]
         :requires #{}
-        :fn (fn [_ast game]
+        :fn (fn [_ast _game]
               (println "You hear nothing unexpected.")
               true))
 (action :look
@@ -204,6 +205,7 @@
   (let [noun (:do-word ast)
         obj-key (:do-key ast)]
     ;; TODO: Should be able to get objects in containers
+    ;; TODO: Should be able to get objects on supporters
     (cond
       (game/in-inventory? game obj-key)
       (println "You're already carrying that!")

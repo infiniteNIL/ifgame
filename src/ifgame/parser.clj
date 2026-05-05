@@ -1,5 +1,6 @@
 (ns ifgame.parser
-  (:require [instaparse.core :as insta]
+  (:require [ifgame.game :as game]
+            [instaparse.core :as insta]
             [ifgame.action :as action]
             [ifgame.object :as object]
             [ifgame.room :as room]))
@@ -88,14 +89,14 @@
 
 (defn- build-vocab [game]
   (let [location (:location @game)
-        object-keys (room/contents location)
-        inv-names (mapcat object/get-names (:inventory @game))
+        object-keys (set (concat (room/complete-contents location)
+                                 (game/complete-inventory game)))
         names (mapcat object/get-names object-keys)
         adjs (mapcat object/get-adjectives object-keys)]
     ;(println "vocab object-keys:" object-keys)
     ;(println "vocab names:" names)
     (-> {}
-        (into {:nouns (set (concat (directions) names inv-names #{"all" "everything"}))})
+        (into {:nouns (set (concat (directions) names #{"all" "everything"}))})
         (into {:adjectives (set adjs)}))))
 
 (defn- normalize-direction [direction]
