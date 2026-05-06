@@ -25,9 +25,9 @@
 
 (defn handle-object-action [key ast game]
   (let [obj (key ast)
-        fn (:fn obj)]
-    (if fn
-      (fn ast game)
+        handler (:handler obj)]
+    (if handler
+      (handler ast game)
       false)))
 
 ;; Processing order of objects functions:

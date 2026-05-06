@@ -18,6 +18,7 @@
      and no further processing should happen."
   [id synonyms & {:keys [requires forms handler]
                   :or {requires #{}
+                       handler nil
                        forms #{}}}]
   (swap! actions assoc id {:type :action
                            :synonyms synonyms

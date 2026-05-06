@@ -11,15 +11,15 @@
      :first-desc - A description for the object when it is first seen.
      :contents - the object keys inside this object (must have container property)
      :props - set of properties for the object.
-     :fn - the object's action handler."
-  [id name synonyms & {:keys [desc first-desc adjectives contents supports props fn]
+     :handler - the object's action handler."
+  [id name synonyms & {:keys [desc first-desc adjectives contents supports props handler]
                        :or {desc (str "There is a " name " here.")
                             first-desc nil
                             adjectives []
                             contents #{}
                             supports #{}
                             props #{}
-                            fn nil}}]
+                            handler nil}}]
   (swap! objects assoc id {:type :object
                            :name name
                            :synonyms synonyms
@@ -29,7 +29,7 @@
                            :contents contents
                            :supports supports
                            :props props
-                           :fn fn}))
+                           :handler handler}))
 
 (defn get-object
   "Get an object by its key."

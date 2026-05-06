@@ -7,52 +7,52 @@
         "tiny cottage"
         ["cottage" "home" "house" "hut" "shed" "hovel"]
         :props #{:scenery}
-        :fn (fn [ast _game]
-              (cond
-                (action/is-action? (:action ast) :enter)
-                (do
-                  (println "It's such a lovely day -- much too nice to go inside.")
-                  true)
+        :handler (fn [ast _game]
+                   (cond
+                     (action/is-action? (:action ast) :enter)
+                     (do
+                       (println "It's such a lovely day -- much too nice to go inside.")
+                       true)
 
-                (action/is-action? (:action ast) :examine)
-                (do
-                  (println "It's small and simple, but you're very happy here.")
-                  true)
+                     (action/is-action? (:action ast) :examine)
+                     (do
+                       (println "It's small and simple, but you're very happy here.")
+                       true)
 
-                :else
-                false)))
+                     :else
+                     false)))
 
 (object :bird
         "baby bird"
         ["bird" "nestling"]
         :adjectives ["baby"]
         :props #{}
-        :fn (fn [ast _game]
-              (cond
-                (action/is-action? (:action ast) :examine)
-                (do
-                  (println "Too young to fly, the nestling tweets helplessly.")
-                  true)
+        :handler (fn [ast _game]
+                   (cond
+                     (action/is-action? (:action ast) :examine)
+                     (do
+                       (println "Too young to fly, the nestling tweets helplessly.")
+                       true)
 
-                (action/is-action? (:action ast) :listen)
-                (do
-                  (println "It sounds scared and in need of assistance.")
-                  true)
+                     (action/is-action? (:action ast) :listen)
+                     (do
+                       (println "It sounds scared and in need of assistance.")
+                       true)
 
-                :else
-                false)))
+                     :else
+                     false)))
 
 (object :nest
         "bird's nest"
         ["nest" "twigs" "moss"]
         :adjectives ["bird"]
         :props #{:container :open}
-        :fn (fn nest-handler [ast _game]
-              (if (action/is-action? (:action ast) :examine)
-                (do
-                  (println "The nest is carefully woven of twigs and moss.")
-                  true)
-                false)))
+        :handler (fn nest-handler [ast _game]
+                   (if (action/is-action? (:action ast) :examine)
+                     (do
+                       (println "The nest is carefully woven of twigs and moss.")
+                       true)
+                     false)))
 
 (defn nest-contains-bird? [_game]
   (let [nest (object/get-object :nest)]
@@ -63,26 +63,26 @@
         ["sycamore" "tree"]
         :adjectives ["tall" "stout" "proud"]
         :props #{:scenery}
-        :fn (fn [ast game]
-              ;; TODO: Need to handle up action like climb action
-              ;(println "tree-action:" ast)
-              (cond
-                (and (action/is-action? (:action ast) :climb)
-                     (game/in-inventory? game :bird)
-                     (game/in-inventory? game :nest)
-                     (not (nest-contains-bird? game)))
-                (do (println "You start to climb the tree, but then realize you can't climb with both your hands full.")
-                    true)
+        :handler (fn [ast game]
+                   ;; TODO: Need to handle up action like climb action
+                   ;(println "tree-action:" ast)
+                   (cond
+                     (and (action/is-action? (:action ast) :climb)
+                          (game/in-inventory? game :bird)
+                          (game/in-inventory? game :nest)
+                          (not (nest-contains-bird? game)))
+                     (do (println "You start to climb the tree, but then realize you can't climb with both your hands full.")
+                         true)
 
-                (action/is-action? (:action ast) :climb)
-                (game/move-player game :top-of-tree)
+                     (action/is-action? (:action ast) :climb)
+                     (game/move-player game :top-of-tree)
 
-                (action/is-action? (:action ast) :examine)
-                (do (println "Standing proud in the middle of the clearing, the stout tree looks easy to climb.")
-                    true)
+                     (action/is-action? (:action ast) :examine)
+                     (do (println "Standing proud in the middle of the clearing, the stout tree looks easy to climb.")
+                         true)
 
-                :else
-                false)))
+                     :else
+                     false)))
 
 ;; TODO: When player puts nest (containing the bird) on branch, the player wins
 (object :branch
@@ -91,12 +91,12 @@
         :desc "There is a wide firm bough here."
         :adjectives ["wide" "firm" "flat"]
         :props #{:static :supporter}
-        :fn (fn [ast _game]
-              (cond
-                (action/is-action? (:action ast) :examine)
-                (do
-                  (println "It's flat enough to support a small object.")
-                  true)
+        :handler (fn [ast _game]
+                   (cond
+                     (action/is-action? (:action ast) :examine)
+                     (do
+                       (println "It's flat enough to support a small object.")
+                       true)
 
-                :else
-                false)))
+                     :else
+                     false)))
