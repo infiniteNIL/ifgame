@@ -26,7 +26,19 @@
       :southwest :forest
       :up :top-of-tree
       :props #{:light}
-      :contents #{:nest :tree})
+      :contents #{:nest :tree}
+      :before-handler (fn [ast game]
+                        (cond
+                          (and (action/is-action? (:action ast) :go)
+                               (= (:direction ast) :up)
+                               (game/in-inventory? game :bird)
+                               (game/in-inventory? game :nest)
+                               (not (ex/nest-contains-bird? game)))
+                          (do (println "You start to climb the tree, but then realize you can't climb with both your hands full.")
+                              true)
+
+                          :else
+                          false)))
 
 (defn nest-on-branch? [_game]
    (let [branch (object/get-object :branch)]
