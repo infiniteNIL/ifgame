@@ -45,9 +45,26 @@
   (let [new-inventory (conj (:inventory @game) object-key)]
     (swap! game assoc :inventory new-inventory)))
 
+(defn- find-parent
+  "Find the container or supporter of obj-key in set of object keys. Returns the key of the parent object."
+  [obj-key obj-keys]
+  (->> obj-keys
+       (filter (fn [key]
+                 (let [obj (object/get-object key)]
+                   (or (contains? (:contents obj) obj-key)
+                       (contains? (:supports obj) obj-key)))))
+       (first)))
+
 (defn remove-from-inventory [game object-key]
-  (let [new-inventory (disj (:inventory @game) object-key)]
-    (swap! game assoc :inventory new-inventory)))
+  (let [inventory (:inventory @game)]
+    (if (contains? inventory object-key)
+      ;; Simple case. object at top level
+      (swap! game assoc :inventory (disj inventory object-key))
+
+      ;; Complex case. object in container or supporter
+      ;; First we need to find container or supporter of object-key
+      (when-let [parent-key (find-parent object-key inventory)]
+        (object/remove-child parent-key object-key)))))
 
 (defn complete-inventory
   "Get all the keys of objects in the player's inventory, and those object's containees, and supporters."

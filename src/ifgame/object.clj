@@ -145,6 +145,28 @@
         old-contents (:contents container-obj)]
     (swap! objects assoc-in [container-key :contents] (conj old-contents obj-key))))
 
+(defn remove-contents
+  "Remove an object from a container, given the container and object key."
+  [container-key obj-key]
+  (let [container-obj (get-object container-key)
+        old-contents (:contents container-obj)]
+    (swap! objects assoc-in [container-key :contents] (disj old-contents obj-key))))
+
+(defn remove-supports
+  "Remove an object from a supporter, given the supporter and object key."
+  [supporter-key obj-key]
+  (let [supporter-obj (get-object supporter-key)
+        old-supports (:supports supporter-obj)]
+    (swap! objects assoc-in [supporter-key :supports] (disj old-supports obj-key))))
+
+(defn remove-child
+  "Remove a child object from a parent object, given the parent's key and the child's key."
+  [parent-key child-key]
+  (let [parent (get-object parent-key)]
+    (if (contains? (:contents parent) child-key)
+      (remove-contents parent-key child-key)
+      (remove-supports parent-key child-key))))
+
 (defn object-contains?
   "Returns whether an object contains another object, given their keys."
   [obj obj-key]

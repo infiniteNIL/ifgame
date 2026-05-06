@@ -22,7 +22,6 @@
         (if (seq object-keys)
           (doseq [key object-keys]
             (let [obj (object/get-object key)]
-              ;; TODO: Handle object in container or supporter in inventory
               (game/remove-from-inventory game key)
               (room/add-object location key)
               (println (str (:name obj) ":") "Dropped.")))
@@ -33,7 +32,6 @@
 
       :else
       (let [location (:location @game)]
-        ;; TODO: Handle object in container or supporter in inventory
         (game/remove-from-inventory game obj-key)
         (room/add-object location obj-key)
         (println "Dropped.")))))
