@@ -185,3 +185,13 @@
   [obj obj-key]
   (assert (has-prop? obj :supporter))
   (some #{obj-key} (:supports obj)))
+
+(defn find-parent
+  "Find the container or supporter of obj-key in set of object keys. Returns the key of the parent object."
+  [obj-key obj-keys]
+  (->> obj-keys
+       (filter (fn [key]
+                 (let [obj (get-object key)]
+                   (or (contains? (:contents obj) obj-key)
+                       (contains? (:supports obj) obj-key)))))
+       (first)))

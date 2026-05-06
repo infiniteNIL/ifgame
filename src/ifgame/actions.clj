@@ -202,8 +202,6 @@
 (defn- take-object [ast game]
   (let [noun (:do-word ast)
         obj-key (:do-key ast)]
-    ;; TODO: Should be able to get objects in containers
-    ;; TODO: Should be able to get objects on supporters
     (cond
       (game/in-inventory? game obj-key)
       (println "You're already carrying that!")

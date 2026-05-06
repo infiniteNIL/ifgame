@@ -137,7 +137,15 @@
     (swap! rooms assoc-in [loc-key :contents] new-objects)))
 
 (defn remove-object
-  "Remove an object from a room, given the room's key and the object's key."
+  "Remove an object from a room, given the room's key and the object's key.
+   Also removes the object if it is in a container or supporter in the room."
   [loc-key object-key]
-  (let [new-objects (disj (contents loc-key) object-key)]
-    (swap! rooms assoc-in [loc-key :contents] new-objects)))
+  (let [objects (contents loc-key)]
+    (if (contains? objects object-key)
+      ;; Simple case. object at top level
+      (swap! rooms assoc-in [loc-key :contents] (disj objects object-key))
+
+      ;; Complex case. object in container or supporter
+      ;; First we need to find container or supporter of object-key
+      (when-let [parent-key (object/find-parent object-key objects)]
+        (object/remove-child parent-key object-key)))))
