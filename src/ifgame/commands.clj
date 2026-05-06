@@ -59,8 +59,8 @@
 
       action-handler
       (do (action-handler ast game)
-          (when-let [room-fn (:fn room)]
-            (room-fn ast game)))
+          (when-let [room-handler (:handler room)]
+            (room-handler ast game)))
 
       :else
       false)))

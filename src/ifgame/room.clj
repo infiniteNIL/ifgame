@@ -13,8 +13,8 @@
      :north, :south, :east, :west, :up, :down, :northwest, :northeast :southwest - id of rooms in the given direction.
      :props - set of properties for the room.
      :contents - set of ids to objects in the room.
-     :fn - the rooms action handler."
-  [id name desc & {:keys [north south east west up down northwest northeast southwest southeast props contents fn]
+     :handler - the rooms action handler."
+  [id name desc & {:keys [north south east west up down northwest northeast southwest southeast props contents handler]
                    :or {north     nil
                         south     nil
                         east      nil
@@ -27,7 +27,7 @@
                         southeast nil
                         props     #{}
                         contents  #{}
-                        fn        nil}}]
+                        handler   nil}}]
   (swap! rooms assoc id {:type      :room
                          :name      name
                          :desc      desc
@@ -43,7 +43,7 @@
                          :southeast southeast
                          :props     props
                          :contents  contents
-                         :fn        fn}))
+                         :handler   handler}))
 
 #_(defrecord Room [name description
                    north south east west up down

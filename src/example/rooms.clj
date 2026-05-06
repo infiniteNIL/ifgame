@@ -38,19 +38,19 @@
       :down :clearing
       :props #{:light}
       :contents #{:branch}
-      :fn (fn [ast game]
-             (cond
-                (action/is-action? (:action ast) :drop)
-                ;; After object has been dropped
-                (let [obj (:direct-object ast)]
-                   ;; object already dropped. Need to move object from tree to clearing
-                   (game/move-object (:do-key ast) :top-of-tree :clearing)
-                   (println "The" (:name obj) "falls to the ground far below."))
+      :handler (fn [ast game]
+                  (cond
+                     (action/is-action? (:action ast) :drop)
+                     ;; After object has been dropped
+                     (let [obj (:direct-object ast)]
+                        ;; object already dropped. Need to move object from tree to clearing
+                        (game/move-object (:do-key ast) :top-of-tree :clearing)
+                        (println "The" (:name obj) "falls to the ground far below."))
 
-                (and (ex/nest-contains-bird? game) (nest-on-branch? game))
-                (do
-                  (println "Congratulations! You have won the game.")
-                  (game/won game))
+                     (and (ex/nest-contains-bird? game) (nest-on-branch? game))
+                     (do
+                       (println "Congratulations! You have won the game.")
+                       (game/won game))
 
-                :else
-                false)))
+                     :else
+                     false)))
