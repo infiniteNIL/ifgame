@@ -13,37 +13,39 @@
      :north, :south, :east, :west, :up, :down, :northwest, :northeast :southwest - id of rooms in the given direction.
      :props - set of properties for the room.
      :contents - set of ids to objects in the room.
-     :handler - the rooms action handler."
-  [id name desc & {:keys [north south east west up down northwest northeast southwest southeast props contents handler]
-                   :or {north     nil
-                        south     nil
-                        east      nil
-                        west      nil
-                        up        nil
-                        down      nil
-                        northwest nil
-                        northeast nil
-                        southwest nil
-                        southeast nil
-                        props     #{}
-                        contents  #{}
-                        handler   nil}}]
-  (swap! rooms assoc id {:type      :room
-                         :name      name
-                         :desc      desc
-                         :north     north
-                         :south     south
-                         :east      east
-                         :west      west
-                         :up        up
-                         :down      down
-                         :northwest northwest
-                         :northeast northeast
-                         :southwest southwest
-                         :southeast southeast
-                         :props     props
-                         :contents  contents
-                         :handler   handler}))
+     :before-handler - the rooms before action handler. Receives ast and game. Called before any object handlers."
+  [id name desc & {:keys [north south east west up down northwest northeast southwest southeast props contents before-handler after-handler]
+                   :or {north          nil
+                        south          nil
+                        east           nil
+                        west           nil
+                        up             nil
+                        down           nil
+                        northwest      nil
+                        northeast      nil
+                        southwest      nil
+                        southeast      nil
+                        props          #{}
+                        contents       #{}
+                        before-handler nil
+                        after-handler  nil}}]
+  (swap! rooms assoc id {:type           :room
+                         :name           name
+                         :desc           desc
+                         :north          north
+                         :south          south
+                         :east           east
+                         :west           west
+                         :up             up
+                         :down           down
+                         :northwest      northwest
+                         :northeast      northeast
+                         :southwest      southwest
+                         :southeast      southeast
+                         :props          props
+                         :contents       contents
+                         :before-handler before-handler
+                         :after-handler  after-handler}))
 
 #_(defrecord Room [name description
                    north south east west up down

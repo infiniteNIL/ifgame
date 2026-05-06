@@ -64,8 +64,6 @@
         :adjectives ["tall" "stout" "proud"]
         :props #{:scenery}
         :handler (fn [ast game]
-                   ;; TODO: Need to handle up action like climb action
-                   ;(println "tree-action:" ast)
                    (cond
                      (and (action/is-action? (:action ast) :climb)
                           (game/in-inventory? game :bird)
@@ -84,7 +82,6 @@
                      :else
                      false)))
 
-;; TODO: When player puts nest (containing the bird) on branch, the player wins
 (object :branch
         "branch"
         ["bough" "branch"]

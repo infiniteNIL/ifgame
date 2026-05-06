@@ -44,11 +44,16 @@
   (let [action (:action ast)
         action-handler (:handler action)
         room-key (:location @game)
-        room (room/get-room room-key)]
+        room (room/get-room room-key)
+        room-before-handler (:before-handler room)]
     ;; FIXME: When multiple objects in play (like "get all"), every object involved needs to be given a chance
     ;;        to handle the action
+    ;; Room handler gets a chance to handle things before actions
     (cond
       (handle-errors ast game)
+      true
+
+      (and room-before-handler (room-before-handler ast game))
       true
 
       (handle-object-action :indirect-object ast game)
@@ -59,8 +64,8 @@
 
       action-handler
       (do (action-handler ast game)
-          (when-let [room-handler (:handler room)]
-            (room-handler ast game)))
+          (when-let [room-after-handler (:after-handler room)]
+            (room-after-handler ast game)))
 
       :else
       false)))
