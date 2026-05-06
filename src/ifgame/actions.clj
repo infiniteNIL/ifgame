@@ -8,9 +8,9 @@
 (action :climb
         ["climb" "climb up"]
         :requires #{}
-        :fn (fn [_ast _game]
-              (println "You can't climb that.")
-              true))
+        :handler (fn [_ast _game]
+                   (println "You can't climb that.")
+                   true))
 
 (defn- drop-object [ast game]
   (let [noun (:do-word ast)
@@ -39,16 +39,16 @@
 (action :drop
         ["drop" "put down"]
         :requires #{}
-        :fn (fn [ast game]
-              (drop-object ast game)
-              true))
+        :handler (fn [ast game]
+                   (drop-object ast game)
+                   true))
 
 (action :enter
         ["enter" "in" "go in"]
         :requires #{}
-        :fn (fn [_ast _game]
-              (println "That's not something you can enter.")
-              true))
+        :handler (fn [_ast _game]
+                   (println "That's not something you can enter.")
+                   true))
 
 (defn- examine [ast _game]
   (let [noun (:do-word ast)
@@ -61,9 +61,9 @@
 (action :examine
         ["x" "examine"]
         :requires #{}
-        :fn (fn [ast game]
-              (examine ast game)
-              true))
+        :handler (fn [ast game]
+                   (examine ast game)
+                   true))
 
 (defn- normalize-direction [direction]
   (let [dirs {"n" "north"
@@ -100,48 +100,49 @@
 (action :go
         ["go" "walk"]
         :requires #{}
-        :fn (fn [ast game-state]
-              (go ast game-state)
-              true))
+        :handler (fn [ast game-state]
+                   (println "go ast:" ast)
+                   (go ast game-state)
+                   true))
 
 (action :inventory
         ["i" "inventory"]
         :requires #{}
-        :fn (fn [_ast game]
-              (let [object-keys (:inventory @game)]
-                (if-not (empty? object-keys)
-                  (do
-                    (println "You are carrying:")
-                    (doseq [key object-keys]
-                      (let [obj (object/get-object key)]
-                        ;; TODO: Needs to be recursive to handle containers within containers
-                        (println "  A" (:name obj))
-                        (when (and (object/supporter? key) (not-empty (:supports obj)))
-                          (println "  Sitting on the" (:name obj) "is:")
-                          (doseq [key (:supports obj)]
-                            (let [o (object/get-object key)]
-                              (println "    A" (:name o)))))
-                        (when (and (object/container? key) (not-empty (:contents obj)))
-                          (println "  The" (:name obj) "contains:")
-                          (doseq [key (:contents obj)]
-                            (let [o (object/get-object key)]
-                              (println "    A" (:name o))))))))
-                  (println "You're not carrying anything."))
-                true)))
+        :handler (fn [_ast game]
+                   (let [object-keys (:inventory @game)]
+                     (if-not (empty? object-keys)
+                       (do
+                         (println "You are carrying:")
+                         (doseq [key object-keys]
+                           (let [obj (object/get-object key)]
+                             ;; TODO: Needs to be recursive to handle containers within containers
+                             (println "  A" (:name obj))
+                             (when (and (object/supporter? key) (not-empty (:supports obj)))
+                               (println "  Sitting on the" (:name obj) "is:")
+                               (doseq [key (:supports obj)]
+                                 (let [o (object/get-object key)]
+                                   (println "    A" (:name o)))))
+                             (when (and (object/container? key) (not-empty (:contents obj)))
+                               (println "  The" (:name obj) "contains:")
+                               (doseq [key (:contents obj)]
+                                 (let [o (object/get-object key)]
+                                   (println "    A" (:name o))))))))
+                       (println "You're not carrying anything."))
+                     true)))
 
 ;; TODO: Need to handle "listen to"
 (action :listen
         ["listen" "listen to"]
         :requires #{}
-        :fn (fn [_ast _game]
-              (println "You hear nothing unexpected.")
-              true))
+        :handler (fn [_ast _game]
+                   (println "You hear nothing unexpected.")
+                   true))
 (action :look
         ["l" "look"]
         :requires #{}
-        :fn (fn [_ast game]
-              (println (room/describe (:location @game) :full))
-              true))
+        :handler (fn [_ast game]
+                   (println (room/describe (:location @game) :full))
+                   true))
 
 (declare take-object)
 
@@ -149,39 +150,39 @@
         ["place" "put"]
         ;; TODO: Parser should enforce this
         :requires #{:direct-object :preposition :indirect-object}
-        :fn (fn [ast game]
-              (let [do-key (:do-key ast)
-                    do-obj (object/get-object do-key)
-                    prep (:preposition ast)
-                    io-key (:io-key ast)
-                    io-obj (object/get-object io-key)]
-                (when (not (game/in-inventory? game do-key))
-                  (take-object ast game))
-                (cond
-                  (not (game/in-inventory? game do-key))
-                  (do (println "You're not carrying the" (:name do-obj))
-                      true)
+        :handler (fn [ast game]
+                   (let [do-key (:do-key ast)
+                         do-obj (object/get-object do-key)
+                         prep (:preposition ast)
+                         io-key (:io-key ast)
+                         io-obj (object/get-object io-key)]
+                     (when (not (game/in-inventory? game do-key))
+                       (take-object ast game))
+                     (cond
+                       (not (game/in-inventory? game do-key))
+                       (do (println "You're not carrying the" (:name do-obj))
+                           true)
 
-                  (= prep "in")
-                  (if (object/container? io-key)
-                    (do (object/add-contents io-key do-key)
-                        (game/remove-from-inventory game do-key)
-                        (println "You place the" (:name do-obj) "in the" (str (:name io-obj) "."))
-                        true)
-                    (do (println "You can't put anything in the" (:name io-obj))
-                        true))
+                       (= prep "in")
+                       (if (object/container? io-key)
+                         (do (object/add-contents io-key do-key)
+                             (game/remove-from-inventory game do-key)
+                             (println "You place the" (:name do-obj) "in the" (str (:name io-obj) "."))
+                             true)
+                         (do (println "You can't put anything in the" (:name io-obj))
+                             true))
 
-                  (= prep "on")
-                  (if (object/supporter? io-key)
-                    (do (object/add-support io-key do-key)
-                        (game/remove-from-inventory game do-key)
-                        (println "You place the" (:name do-obj) "on the" (str (:name io-obj) "."))
-                        true)
-                    (do (println "You can't put anything on the" (:name io-obj))
-                        true))
+                       (= prep "on")
+                       (if (object/supporter? io-key)
+                         (do (object/add-support io-key do-key)
+                             (game/remove-from-inventory game do-key)
+                             (println "You place the" (:name do-obj) "on the" (str (:name io-obj) "."))
+                             true)
+                         (do (println "You can't put anything on the" (:name io-obj))
+                             true))
 
-                  :else
-                  false))))
+                       :else
+                       false))))
 
 (defn- verify-quit []
   (print "Are you sure? (Y/n) ")
@@ -194,10 +195,10 @@
 (action :quit
         ["q" "quit"]
         :requires #{}
-        :fn (fn [_ast game]
-              (when (verify-quit)
-                (game/quit game))
-              true))
+        :handler (fn [_ast game]
+                   (when (verify-quit)
+                     (game/quit game))
+                   true))
 
 (defn- take-object [ast game]
   (let [noun (:do-word ast)
@@ -232,7 +233,7 @@
 (action :take
         ["take" "get" "pick up"]
         :requires #{}
-        :fn (fn [ast game]
-              (take-object ast game)
-              true))
+        :handler (fn [ast game]
+                   (take-object ast game)
+                   true))
 

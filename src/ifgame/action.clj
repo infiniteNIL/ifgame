@@ -14,16 +14,16 @@
         [\"read\" :direct-object
          \"read\" :direct-object \"with\" :indirect-object
          \"read\" :direct-object \"through\" :indirect-object
-     fn is the function to handle the action. It should return true if it actually handles it.
-        and no further processing should happen."
-  [id synonyms & {:keys [requires forms fn]
+     handler is the function to handle the action. It should return true if it actually handles it.
+     and no further processing should happen."
+  [id synonyms & {:keys [requires forms handler]
                   :or {requires #{}
                        forms #{}}}]
   (swap! actions assoc id {:type :action
                            :synonyms synonyms
                            :requires requires
                            :forms forms
-                           :fn fn}))
+                           :handler handler}))
 
 (defn get-action-by-word [word]
   (let [key (->> @actions

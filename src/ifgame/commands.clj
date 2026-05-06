@@ -42,7 +42,7 @@
 ;; regardless if another handler handled it.
 (defn process-cmd [ast game]
   (let [action (:action ast)
-        action-fn (:fn action)
+        action-handler (:handler action)
         room-key (:location @game)
         room (room/get-room room-key)]
     ;; FIXME: When multiple objects in play (like "get all"), every object involved needs to be given a chance
@@ -57,8 +57,8 @@
       (handle-object-action :direct-object ast game)
       true
 
-      action-fn
-      (do (action-fn ast game)
+      action-handler
+      (do (action-handler ast game)
           (when-let [room-fn (:fn room)]
             (room-fn ast game)))
 
