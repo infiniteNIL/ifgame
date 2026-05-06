@@ -101,7 +101,6 @@
         ["go" "walk"]
         :requires #{}
         :handler (fn [ast game-state]
-                   (println "go ast:" ast)
                    (go ast game-state)
                    true))
 

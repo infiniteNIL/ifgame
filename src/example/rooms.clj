@@ -61,6 +61,7 @@
 
                            (and (ex/nest-contains-bird? game) (nest-on-branch? game))
                            (do
+                             (println "The nestling looks at you and chirps a little song, seemingly thanking you.")
                              (println "Congratulations! You have won the game.")
                              (game/won game))
 
